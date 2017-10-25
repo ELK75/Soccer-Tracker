@@ -91,12 +91,11 @@ public class Main {
         System.out.println("Please enter a name...");
         scan.nextLine();
         String name = scan.nextLine();
-        if (!nameAlreadyInputted(name, user)) {
-            // keeps looping if the user keep entering an empty input
-            while (name.isEmpty()) {
-                System.out.println("Please enter a name...");
-                name = scan.nextLine();
-            }
+        // goes back to list of players if user just hits enter
+        if (name.isEmpty()) {
+            showPlayers(user);
+        }
+        else if (!nameAlreadyInputted(name, user)) {
             user.getPlayer(input-1).setName(name);
             user.getPlayer(input-1).setGoals(0);
         } else {
