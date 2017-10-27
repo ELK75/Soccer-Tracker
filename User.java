@@ -1,12 +1,14 @@
 
 import java.util.Scanner;
 import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class User {
 
     private static Scanner scan = new Scanner(System.in);
     private boolean vip;
-    private Player[] players = null;
+    private ArrayList<Player> players = new ArrayList<Player>();
 
     // sets VIP status based upon whether the user
     // enters the correct password
@@ -24,58 +26,33 @@ public class User {
         }
     }
 
-    // creates an array of Player Objects
-    public void createPlayers() {
-        if (vip) {
-            players = new Player[8];
-        } else {
-            players = new Player[5];
-        }
-        for (int i = 0; i < players.length; i++)
-            players[i] = new Player();
-    }
-
-    // this method is for when the user presses
-    // enter without entering a name
-    public void clearNullPlayers() {
-        // if the first name is null it means the user
-        // has not entered his players yet
-        if (players[0].getName() != null) {
-            int nonNullCount = 0;
-            for (int i = 0; i < players.length; i++) {
-                if (players[i].getName() != null)
-                    nonNullCount += 1;
-            }
-
-            if (nonNullCount == 0)
-                players = null;
-            else {
-                Player[] playersWithoutNull = new Player[nonNullCount];
-                for (int i = 0; i < playersWithoutNull.length; i++)
-                    playersWithoutNull[i] = players[i];
-        
-                players = playersWithoutNull.clone();
-            }
-        }
-    }
-
     public void alphabatizePlayers() {
         if (players != null)
-            Arrays.sort(players, (a,b) -> a.getName().compareTo(b.getName()));
+            Collections.sort(players, (a,b) -> a.getName().compareTo(b.getName()));
     }
 
     public boolean getVip() {
         return vip;
     }
 
-    public Player[] getPlayers() {
+    public ArrayList<Player> getPlayers() {
         return players;
+    }
+
+    public void clearPlayers() {
+        players = new ArrayList<Player>();
+    }
+
+    public Player makePlayer(String name) {
+        Player player = new Player();
+        player.setName(name);
+        return player;
     }
 
     public String[] getPlayerNames() {
         String[] playerNames = new String[getNumberOfPlayers()];
         for (int i = 0; i < playerNames.length; i++) {
-            playerNames[i] = players[i].getName();
+            playerNames[i] = players.get(i).getName();
         }
         return playerNames;
     }
@@ -83,7 +60,7 @@ public class User {
     public int[] getPlayerGoals() {
         int[] playerGoals = new int[getNumberOfPlayers()];
         for (int i = 0; i < playerGoals.length; i++) {
-            playerGoals[i] = players[i].getGoals();
+            playerGoals[i] = players.get(i).getGoals();
         }
         return playerGoals;
     }
@@ -100,14 +77,21 @@ public class User {
 
     public void sortByGoals() {
         if (players != null)
-            Arrays.sort(players, (a,b) -> compare(a.getGoals(), b.getGoals()));
+            Collections.sort(players, (a,b) -> compare(a.getGoals(), b.getGoals()));
     }
 
     public Player getPlayer(int index) {
-        return players[index];
+        return players.get(index);
+    }
+
+    public int getNumberOfPlayersAllowed() {
+        if (vip)
+            return 8;
+        else
+            return 5;
     }
 
     public int getNumberOfPlayers() {
-        return players.length;
+        return players.size();
     }
 }

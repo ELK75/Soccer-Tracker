@@ -1,6 +1,9 @@
 
 import java.util.Scanner;
+// TODO remove this import if not neccessary
 import java.util.Arrays;
+// TODO make so program runs on an arraylist
+import java.util.ArrayList;
 
 public class Main {
 
@@ -11,17 +14,12 @@ public class Main {
     //
 
     private static boolean playersNotEntered(User user) {
-        if (user.getPlayers() == null) 
-            return true;
-        for (Player player : user.getPlayers())
-            if (player.getName() != null)
-                return false;
-        return true;
+        return user.getPlayers().isEmpty();
     }
 
     private static boolean nameAlreadyInputted(String name, User user) {
         for (Player player : user.getPlayers()) {
-            if (player.getName() != null && player.getName().equals(name))
+            if (player.getName().equals(name))
                 return true;
         }
         return false;
@@ -134,7 +132,7 @@ public class Main {
         int input = getBetweenTwoNumbers(1, inputToClearAllPlayers);
         if (input == inputToClearAllPlayers) {
             if (wantsToClearPlayers())
-                user.createPlayers();
+                user.clearPlayers();
         } else
             updatePlayers(user, input);
     }
@@ -145,9 +143,9 @@ public class Main {
         System.out.println("Press enter without a name to exit...");
         // resetting the scanner so program doesn't pick up an empty input
         scan.nextLine();
-        for (int i = 0; i < user.getNumberOfPlayers(); i++) {
+        for (int i = 0; i < user.getNumberOfPlayersAllowed(); i++) {
             System.out.println("\nPlease enter the name of player " + (i+1) + 
-            " (max is " + user.getNumberOfPlayers() + ")");
+            " (max is " + user.getNumberOfPlayersAllowed() + ")");
 
             String name = scan.nextLine();
             while (i != 0 && nameAlreadyInputted(name, user)) {
@@ -157,8 +155,8 @@ public class Main {
             if (name.isEmpty())
                 break;
             else {
-                user.getPlayer(i).setName(name);
-                if (i == user.getNumberOfPlayers()-1)
+                user.getPlayers().add(user.makePlayer(name));
+                if (i == user.getNumberOfPlayersAllowed() - 1)
                     System.out.println("\nMax players entered...");
             }
         }
@@ -167,7 +165,6 @@ public class Main {
     private static void enterPlayers(User user) {
         if (playersNotEntered(user)) {
             inputPlayers(user);
-            user.clearNullPlayers();
         } else {
             user.alphabatizePlayers();
             showPlayers(user);
@@ -201,7 +198,7 @@ public class Main {
         return total / divisor;
     }
 
-    private static int getMostGoalsScored(Player[] players) {
+    private static int getMostGoalsScored(ArrayList<Player> players) {
         int goalsOfTopScorer = 0;
         for (Player player: players) {
             if (player.getGoals() > goalsOfTopScorer)
@@ -212,11 +209,11 @@ public class Main {
 
     // method is necessary since there is a possibility of
     // multiple top scorers
-    private static void printTopScorers(Player[] players) {
+    private static void printTopScorers(ArrayList<Player> players) {
         int mostGoalsScored = getMostGoalsScored(players);
-        for (int i = 0; i < players.length; i++) {
-            if (players[i].getGoals() == mostGoalsScored) {
-                System.out.println(players[i].getName() + " is a top goal scorer");
+        for (int i = 0; i < players.size(); i++) {
+            if (players.get(i).getGoals() == mostGoalsScored) {
+                System.out.println(players.get(i).getName() + " is a top goal scorer");
             }
 
         }
@@ -351,7 +348,6 @@ public class Main {
     private static void start() {
         User user = new User();
         user.setVip();
-        user.createPlayers();
         introScreen(user);
     }
 
