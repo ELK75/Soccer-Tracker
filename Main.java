@@ -111,11 +111,12 @@ public class Main {
 
         while (true) {
             System.out.println("Are you sure you want to continue? (y/n)");
-
-            String input = scan.next();
+            // clearing scanner
+            scan.nextLine();
+            String input = scan.nextLine();
             if (input.equals("y") || input.equals("Y"))
                 return true;
-            else if (input.equals("n") || input.equals("N"))
+            else if (input.equals("n") || input.equals("N") || input.isEmpty())
                 return false;
             else {
                 System.out.println("\nCould not understand input...");
@@ -324,7 +325,6 @@ public class Main {
     // they want to go
     private static void introScreen(User user) {
         boolean wants_to_exit = false;
-        
         while (!wants_to_exit) {
             promptUser(user);
             int input = getPromptInput(user);
