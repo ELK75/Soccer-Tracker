@@ -13,10 +13,10 @@ public class User {
     // sets VIP status based upon whether the user
     // enters the correct password
     public void setVip() {
-        String password = "#ChelseaIsTheBest";
-    
         System.out.print("\nPlease enter your VIP password to access the list...\n");
-        String tried_password = scan.next();
+        
+        String password = "#ChelseaIsTheBest";
+        String tried_password = scan.nextLine();
         if (password.equals(tried_password)) {
             System.out.println("Access granted...");
             vip = true;

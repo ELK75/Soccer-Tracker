@@ -5,6 +5,7 @@ import java.util.Arrays;
 // TODO make so program runs on an arraylist
 import java.util.ArrayList;
 
+
 public class Main {
 
     private static Scanner scan = new Scanner(System.in);
@@ -15,6 +16,19 @@ public class Main {
 
     private static boolean playersNotEntered(User user) {
         return user.getPlayers().isEmpty();
+    }
+
+    // method from StackOverflow
+    private static boolean isInteger(String str) {
+        if (str == null || str.trim().isEmpty()) {
+            return false;
+        }
+        for (int i = 0; i < str.length(); i++) {
+            if(!Character.isDigit(str.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static boolean nameAlreadyInputted(String name, User user) {
@@ -29,6 +43,7 @@ public class Main {
         System.out.print("-Press enter to continue-");
         try{System.in.read();}
         catch(Exception e){}
+        scan.nextLine();
     }
 
     // returns either singular or plural form of goal
@@ -36,45 +51,54 @@ public class Main {
         return count == 1 ? "goal" : "goals";
     }
 
-    private static int getBetweenTwoNumbers(int numOne, int numTwo) {
-        int player;
+    private static int getBetweenTwoPositiveNumbers(int numOne, int numTwo) {
+        int input;
+        String promptForInvalidInput;
 
-        String promptForInvalidInput = "\nPlease select number between " 
-        + numOne + " and " + numTwo;
+        if (numTwo > numOne)
+            promptForInvalidInput = "\nPlease select a number between " 
+            + numOne + " and " + numTwo;
+        else promptForInvalidInput = "\nPlease select number " + numOne;
 
         System.out.println(promptForInvalidInput);
         while (true) {
-            player = getNumericInput();
-            if (player < numOne || player > numTwo)
+            input = getPositiveInput();
+            if (input == -1) return -1;
+            if (input < numOne || input > numTwo)
                 System.out.println(promptForInvalidInput);
             else
                 break;
         }
-        return player;       
+        return input;       
     }
 
-    private static int getNumericInput() {
-        while (!scan.hasNextInt()) {
+    private static int getPositiveInput() {
+        // if user enters nothing it means they wish to go back
+        // if user enters a number they wish to continue with the program
+        String input = scan.nextLine();
+        while (input.isEmpty() || !isInteger(input)) {
+            // means user wants to go back
+            if (input.isEmpty()) return -1;
             System.out.println("Please enter a valid number...");
-            scan.next();
+            input = scan.nextLine();
         }
-        return scan.nextInt();
+        return Integer.parseInt(input);
     }
 
     private static int getPromptInput(User user) {
         int input;
         // loops until user enters correct input
         while (true) {
-            input = getNumericInput();
-
+            input = getPositiveInput();
             if (input < 1 || input > 5) {
                 System.out.println("\nPlease enter a number (1-5)");
                 askToContinue();
-                introScreen(user);
+                break;
             } else if ((input == 2 || input == 3) && playersNotEntered(user)) {
                 System.out.println("\nMust enter players first...");
                 askToContinue();
-                introScreen(user);
+                input = -1;
+                break;
             } else
                 break;
         }
@@ -87,12 +111,9 @@ public class Main {
 
     private static void updatePlayers(User user, int input) {
         System.out.println("Please enter a name...");
-        scan.nextLine();
         String name = scan.nextLine();
-        // goes back to list of players if user just hits enter
-        if (name.isEmpty()) {
-            showPlayers(user);
-        }
+        // if user just presses enter does nothing`
+        if (name.isEmpty()) {}
         else if (!nameAlreadyInputted(name, user)) {
             user.getPlayer(input-1).setName(name);
             user.getPlayer(input-1).setGoals(0);
@@ -109,8 +130,6 @@ public class Main {
 
         while (true) {
             System.out.println("Are you sure you want to continue? (y/n)");
-            // clearing scanner
-            scan.nextLine();
             String input = scan.nextLine();
             if (input.equals("y") || input.equals("Y"))
                 return true;
@@ -129,20 +148,22 @@ public class Main {
         }
         int inputToClearAllPlayers = user.getNumberOfPlayers()+1;
         System.out.println(inputToClearAllPlayers + ".) <Clear list of players>");
-        int input = getBetweenTwoNumbers(1, inputToClearAllPlayers);
-        if (input == inputToClearAllPlayers) {
-            if (wantsToClearPlayers())
-                user.clearPlayers();
-        } else
-            updatePlayers(user, input);
+        int input = getBetweenTwoPositiveNumbers(1, inputToClearAllPlayers);
+        if (input != -1) {
+            if (input == inputToClearAllPlayers) {
+                if (wantsToClearPlayers())
+                    user.clearPlayers();
+            } else
+                updatePlayers(user, input);
+        }
     }
 
     private static void inputPlayers(User user) {
 
-        System.out.println("\nEnter the names of " + user.getNumberOfPlayers() + " players");
+        System.out.println("\nEnter the names of " + 
+        user.getNumberOfPlayersAllowed() + " players");
         System.out.println("Press enter without a name to exit...");
         // resetting the scanner so program doesn't pick up an empty input
-        scan.nextLine();
         for (int i = 0; i < user.getNumberOfPlayersAllowed(); i++) {
             System.out.println("\nPlease enter the name of player " + (i+1) + 
             " (max is " + user.getNumberOfPlayersAllowed() + ")");
@@ -236,7 +257,7 @@ public class Main {
     }
 
     //
-    // FUNCTIONS RELATED TO OPTION 3
+    // FUNCTIONS RELATING TO OPTION 3
     //
     
     private static void addGoals(int player, User user) {
@@ -248,12 +269,23 @@ public class Main {
         goalOrGoals(user.getPlayer(playerIndex).getGoals()) + " how many do you want to add...\n", 
         user.getPlayer(playerIndex).getGoals());
 
-        int wantsToAdd = getNumericInput();
-        while (wantsToAdd < 1) {
-            System.out.println("Enter a positive number please...");
-            wantsToAdd = getNumericInput();
+        // TODO CHANGE SO WANTS TO ADD CAN GET NEGATIVE INPUT
+        String input = scan.nextLine();
+        int goalsToAdd = 0;
+        String promptForInvalidInput = "Please enter a positive number...";
+        while (true) {
+            if (input.isEmpty()) break;
+            else if (!isInteger(input)) System.out.println(promptForInvalidInput);
+            else {
+                goalsToAdd = Integer.parseInt(input);
+                if (goalsToAdd < 0) System.out.println(promptForInvalidInput);
+                else {
+                    user.getPlayer(playerIndex).addGoals(goalsToAdd);
+                    break;
+                }
+            }
+            input = scan.nextLine();
         }
-        user.getPlayer(playerIndex).addGoals(wantsToAdd);
     }
     
     private static void printPlayerGoals(User user) {
@@ -268,8 +300,8 @@ public class Main {
     private static void updateGoals(User user) {
         System.out.println();
         printPlayerGoals(user);
-        int playerNumber = getBetweenTwoNumbers(1, user.getNumberOfPlayers());
-        addGoals(playerNumber, user);
+        int playerNumber = getBetweenTwoPositiveNumbers(1, user.getNumberOfPlayers());
+        if (playerNumber != -1) addGoals(playerNumber, user);
     }
 
     //
@@ -278,7 +310,7 @@ public class Main {
 
     public static void showPromptForSubscription() {
         System.out.println("\nAccess denied. Please contact a Sassy Soccer sales rep " +
-        "for a VIP subscription\n");
+        "for a VIP subscription");
         askToContinue();
     }
 
@@ -339,8 +371,6 @@ public class Main {
                         break;
                 case 5: wants_to_exit = true;
                       break;
-                default: System.out.println("Invalid. Please re-enter.");
-                    break;
             }
         }
     }
