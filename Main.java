@@ -1,10 +1,6 @@
 
 import java.util.Scanner;
-// TODO remove this import if not neccessary
-import java.util.Arrays;
-// TODO make so program runs on an arraylist
 import java.util.ArrayList;
-
 
 public class Main {
 
@@ -79,7 +75,7 @@ public class Main {
         while (input.isEmpty() || !isInteger(input)) {
             // means user wants to go back
             if (input.isEmpty()) return -1;
-            System.out.println("Please enter a valid number...");
+            System.out.println("\nPlease enter a postive number...");
             input = scan.nextLine();
         }
         return Integer.parseInt(input);
@@ -269,7 +265,6 @@ public class Main {
         goalOrGoals(user.getPlayer(playerIndex).getGoals()) + " how many do you want to add...\n", 
         user.getPlayer(playerIndex).getGoals());
 
-        // TODO CHANGE SO WANTS TO ADD CAN GET NEGATIVE INPUT
         String input = scan.nextLine();
         int goalsToAdd = 0;
         String promptForInvalidInput = "Please enter a positive number...";
