@@ -1,6 +1,5 @@
 
 import java.util.Scanner;
-import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -14,7 +13,7 @@ public class User {
     // enters the correct password
     public void setVip() {
         System.out.print("\nPlease enter your VIP password to access the list...\n");
-        
+
         String password = "#ChelseaIsTheBest";
         String tried_password = scan.nextLine();
         if (password.equals(tried_password)) {

@@ -14,15 +14,18 @@ public class Main {
         return user.getPlayers().isEmpty();
     }
 
-    // method from StackOverflow
+    // method modified from StackOverflow
     private static boolean isInteger(String str) {
         if (str == null || str.trim().isEmpty()) {
             return false;
         }
         for (int i = 0; i < str.length(); i++) {
-            if(!Character.isDigit(str.charAt(i))) {
+            // testing if there is a negative sign. if there is it skips over
+            // it unless the input is JUST a negative sign
+            if (str.charAt(i) == '-' && i == 0 && str.length() > 1)
+                continue;
+            if (!Character.isDigit(str.charAt(i)))
                 return false;
-            }
         }
         return true;
     }
@@ -47,56 +50,45 @@ public class Main {
         return count == 1 ? "goal" : "goals";
     }
 
-    private static int getBetweenTwoPositiveNumbers(int numOne, int numTwo) {
-        int input;
-        String promptForInvalidInput;
-
-        if (numTwo > numOne)
-            promptForInvalidInput = "\nPlease select a number between " 
+    private static String getBetweenTwoNumbers(int numOne, int numTwo) {
+        String promptForInput;
+        if (numTwo == numOne)
+            promptForInput = "\nPlease select number " + numOne;
+        else promptForInput = "\nPlease select a number between " 
             + numOne + " and " + numTwo;
-        else promptForInvalidInput = "\nPlease select number " + numOne;
+        System.out.println(promptForInput);
 
-        System.out.println(promptForInvalidInput);
+        String input = scan.nextLine();
+    
         while (true) {
-            input = getPositiveInput();
-            if (input == -1) return -1;
-            if (input < numOne || input > numTwo)
-                System.out.println(promptForInvalidInput);
-            else
-                break;
+            if (input.isEmpty()) return input;
+            
+            if (!isInteger(input) || 
+            Integer.parseInt(input) < numOne || Integer.parseInt(input) > numTwo) {
+                System.out.println(promptForInput);
+                input = scan.nextLine();
+            } else break;
         }
         return input;       
     }
 
-    private static int getPositiveInput() {
-        // if user enters nothing it means they wish to go back
-        // if user enters a number they wish to continue with the program
-        String input = scan.nextLine();
-        while (input.isEmpty() || !isInteger(input)) {
-            // means user wants to go back
-            if (input.isEmpty()) return -1;
-            System.out.println("\nPlease enter a postive number...");
-            input = scan.nextLine();
-        }
-        return Integer.parseInt(input);
-    }
-
-    private static int getPromptInput(User user) {
-        int input;
+    private static String getPromptInput(User user) {
+        String input;
         // loops until user enters correct input
         while (true) {
-            input = getPositiveInput();
-            if (input < 1 || input > 5) {
-                System.out.println("\nPlease enter a number (1-5)");
+            input = scan.nextLine();
+            if (!isInteger(input) || Integer.parseInt(input) < 1 || Integer.parseInt(input) > 5) {
+                System.out.println("\nPlease enter a number (1-5)...");
                 askToContinue();
+                promptUser(user);
+            } else if ((Integer.parseInt(input) == 2 || Integer.parseInt(input) == 3) 
+                && playersNotEntered(user)) {
+                    System.out.println("\nMust enter players first...");
+                    askToContinue();
+                    promptUser(user);
+            } else {
                 break;
-            } else if ((input == 2 || input == 3) && playersNotEntered(user)) {
-                System.out.println("\nMust enter players first...");
-                askToContinue();
-                input = -1;
-                break;
-            } else
-                break;
+            }
         }
         return input;
     }
@@ -122,7 +114,7 @@ public class Main {
     }
 
     private static boolean wantsToClearPlayers() {
-        System.out.println("WARNING: This will clear all players.");
+        System.out.println("\nWARNING: This will clear all players.");
 
         while (true) {
             System.out.println("Are you sure you want to continue? (y/n)");
@@ -142,15 +134,17 @@ public class Main {
         for (int i = 0; i < user.getNumberOfPlayers(); i++) {
             System.out.println((i+1) + ".) " + user.getPlayer(i).getName());
         }
+
         int inputToClearAllPlayers = user.getNumberOfPlayers()+1;
         System.out.println(inputToClearAllPlayers + ".) <Clear list of players>");
-        int input = getBetweenTwoPositiveNumbers(1, inputToClearAllPlayers);
-        if (input != -1) {
-            if (input == inputToClearAllPlayers) {
+
+        String input = getBetweenTwoNumbers(1, inputToClearAllPlayers);
+        if (!input.isEmpty()) {
+            if (Integer.parseInt(input) == inputToClearAllPlayers) {
                 if (wantsToClearPlayers())
                     user.clearPlayers();
             } else
-                updatePlayers(user, input);
+                updatePlayers(user, Integer.parseInt(input));
         }
     }
 
@@ -295,8 +289,8 @@ public class Main {
     private static void updateGoals(User user) {
         System.out.println();
         printPlayerGoals(user);
-        int playerNumber = getBetweenTwoPositiveNumbers(1, user.getNumberOfPlayers());
-        if (playerNumber != -1) addGoals(playerNumber, user);
+        String playerNumber = getBetweenTwoNumbers(1, user.getNumberOfPlayers());
+        if (!playerNumber.isEmpty()) addGoals(Integer.parseInt(playerNumber), user);
     }
 
     //
@@ -351,8 +345,8 @@ public class Main {
         boolean wants_to_exit = false;
         while (!wants_to_exit) {
             promptUser(user);
-            int input = getPromptInput(user);
-            switch (input) {
+            String input = getPromptInput(user);
+            switch (Integer.parseInt(input)) {
                 case 1: enterPlayers(user);
                       break;
                 case 2: viewPlayers(user);
