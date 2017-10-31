@@ -304,12 +304,40 @@ public class Main {
         askToContinue();
     }
 
-    public static void printVipList () {
-        System.out.println("\n1. Didier Drogba 15,850\n" + 
-            "2. Carli Lloyd 800\n" +
-            "3. Megan Rapinoe 300\n" +
-            "4. Frank Lampard 200\n");
-        askToContinue();
+    public static void changePreference(int input, String[][] preferences) {
+        String current_preference = preferences[input-1][1];
+        String new_preference = "";
+        if (current_preference == "Ascending" || current_preference == "Descending")
+            // switches from ascending to descending or descending to ascending
+            new_preference = current_preference == "Descending" ? "Ascending" : "Descending";
+        else if (current_preference == "True" || current_preference == "False")
+            // switches from true to false and false to true
+            new_preference = current_preference == "True" ? "False" : "True";
+
+        preferences[input-1][1] = new_preference;
+
+        System.out.println();
+        System.out.println(preferences[input-1][0] + " was changed to " + new_preference);
+    }
+
+    public static void changePreferences(User user, String[][] preferences) {
+        String input = getBetweenTwoNumbers(1, preferences.length);
+        if (!input.isEmpty()) {
+            changePreference(Integer.parseInt(input), preferences);
+        }
+    }
+
+    public static void showPrefrences(User user) {
+        System.out.println();
+        String[][] preferences = user.getPrefrences();
+        for (int i = 0; i < preferences.length; i++) {
+            String spaces = String.format(
+                "%" + (25-preferences[i][0].length()) + "s", "");
+            System.out.println(
+                preferences[i][0] + spaces + "[" + preferences[i][1] + "]");
+        }
+
+        changePreferences(user, preferences);
     }
 
     //
@@ -326,9 +354,9 @@ public class Main {
             option1 = "1. Update/Delete players to track\n";
 
         if (user.getVipStatus())
-            option4 = "4. View all-time scoring list\n";
+            option4 = "4. View/Update Prefrences\n";
         else
-            option4 = "4. View all-time scoring list (VIP only)\n";
+            option4 = "4. View/Update Prefrences(VIP only)\n";
 
         System.out.println();
         System.out.println(option1 +
@@ -349,13 +377,13 @@ public class Main {
             String input = getPromptInput(user);
             switch (Integer.parseInt(input)) {
                 case 1: enterPlayers(user);
-                      break;
+                        break;
                 case 2: viewPlayers(user);
                         break;
                 case 3: updateGoals(user);
                         break;
                 case 4: if (user.getVipStatus())
-                            printVipList();
+                            showPrefrences(user);
                         else
                             showPromptForSubscription();
                         break;

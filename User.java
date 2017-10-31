@@ -9,6 +9,9 @@ public class User implements Serializable {
     private static Scanner scan = new Scanner(System.in);
     private boolean vip = false;
     private ArrayList<Player> players = new ArrayList<Player>();
+    private String[][] prefrences = {{"Goals sort order", "Descending"}, 
+                                    {"Names sort order", "Ascending"}, 
+                                    {"Show goal summary", "True"}};
 
     public static final String USER_FILE = "userFile.ser";
 
@@ -17,7 +20,8 @@ public class User implements Serializable {
     public void setVip() {
         System.out.print("\nPlease enter your VIP password to access the list...\n");
 
-        String password = "#ChelseaIsTheBest";
+        // TODO CHANGE
+        String password = "a";
         String tried_password = scan.nextLine();
         if (password.equals(tried_password)) {
             System.out.println("Access granted...");
@@ -26,6 +30,10 @@ public class User implements Serializable {
             System.out.println("Incorrect password...");
             vip = false;
         }
+    }
+
+    public String[][] getPrefrences() {
+        return prefrences;
     }
 
     public void alphabatizePlayers() {
