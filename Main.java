@@ -153,7 +153,6 @@ public class Main {
         System.out.println("\nEnter the names of " + 
         user.getNumberOfPlayersAllowed() + " players");
         System.out.println("Press enter without a name to exit...");
-        // resetting the scanner so program doesn't pick up an empty input
         for (int i = 0; i < user.getNumberOfPlayersAllowed(); i++) {
             System.out.println("\nPlease enter the name of player " + (i+1) + 
             " (max is " + user.getNumberOfPlayersAllowed() + ")");
@@ -166,7 +165,8 @@ public class Main {
             if (name.isEmpty())
                 break;
             else {
-                user.getPlayers().add(user.makePlayer(name));
+                Player player = new Player(name);
+                user.getPlayers().add(player);
                 if (i == user.getNumberOfPlayersAllowed() - 1)
                     System.out.println("\nMax players entered...");
             }
@@ -220,6 +220,7 @@ public class Main {
 
     // method is necessary since there is a possibility of
     // multiple top scorers
+    // TODO SHOW USER IN A CLEANER MANNER
     private static void printTopScorers(ArrayList<Player> players) {
         int mostGoalsScored = getMostGoalsScored(players);
         for (int i = 0; i < players.size(); i++) {
@@ -324,7 +325,7 @@ public class Main {
         else
             option1 = "1. Update/Delete players to track\n";
 
-        if (user.getVip())
+        if (user.getVipStatus())
             option4 = "4. View all-time scoring list\n";
         else
             option4 = "4. View all-time scoring list (VIP only)\n";
@@ -341,9 +342,9 @@ public class Main {
 
     // a main menu where the user enters where
     // they want to go
-    private static void introScreen(User user) {
-        boolean wants_to_exit = false;
-        while (!wants_to_exit) {
+    private static void introScreen(User user) throws Exception {
+        boolean wantsToExit = false;
+        while (!wantsToExit) {
             promptUser(user);
             String input = getPromptInput(user);
             switch (Integer.parseInt(input)) {
@@ -353,24 +354,33 @@ public class Main {
                         break;
                 case 3: updateGoals(user);
                         break;
-                case 4: if (user.getVip())
+                case 4: if (user.getVipStatus())
                             printVipList();
                         else
                             showPromptForSubscription();
                         break;
-                case 5: wants_to_exit = true;
-                      break;
+                case 5: 
+                        DataFile.writeUserFile(user, User.USER_FILE);
+                        wantsToExit = true;
+                        break;
             }
         }
     }
 
-    private static void start() {
+    private static void start() throws Exception {
         User user = new User();
-        user.setVip();
+        // loads user file if it exists
+        if (DataFile.userFileExists(User.USER_FILE)) {
+            user = DataFile.loadUserFile(User.USER_FILE);
+        // if this is the user's first time using the program
+        // they get prompted as to whether they are VIPs
+        } else {
+            user.setVip();
+        }
         introScreen(user);
     }
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws Exception {
         start();
     }
 }
