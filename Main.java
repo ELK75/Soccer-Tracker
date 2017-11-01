@@ -2,6 +2,10 @@
 import java.util.Scanner;
 import java.util.ArrayList;
 
+//
+// GITHUB: https://github.com/Elijah-Kajinic/Soccer-Tracker
+//
+
 public class Main {
 
     private static Scanner scan = new Scanner(System.in);
@@ -107,6 +111,7 @@ public class Main {
                 user.getPlayer(input-1).setGoals(0);
             } else {
                 int numberOfGoals = user.getPlayer(input-1).getGoals();
+                System.out.println();
                 System.out.println("Name already entered. Has " +
                 + numberOfGoals + " " + goalOrGoals(numberOfGoals) + ".");
                 askToContinue();
@@ -253,7 +258,7 @@ public class Main {
         }
 
         System.out.println();
-        if (user.getPreferences()[2][1] == "True") {
+        if (user.getPreferences()[2][1].equals("True")) {
             printTopScorers(user.getPlayers());
             printPlayerStats(user);
         }
@@ -321,12 +326,12 @@ public class Main {
     public static void changePreference(int input, String[][] preferences) {
         String current_preference = preferences[input-1][1];
         String new_preference = "";
-        if (current_preference == "Ascending" || current_preference == "Descending")
+        if (current_preference.equals("Ascending") || current_preference.equals("Descending"))
             // switches from ascending to descending or descending to ascending
-            new_preference = current_preference == "Descending" ? "Ascending" : "Descending";
-        else if (current_preference == "True" || current_preference == "False")
+            new_preference = current_preference.equals("Descending") ? "Ascending" : "Descending";
+        else if (current_preference.equals("True") || current_preference.equals("False"))
             // switches from true to false and false to true
-            new_preference = current_preference == "True" ? "False" : "True";
+            new_preference = current_preference.equals("True") ? "False" : "True";
 
         preferences[input-1][1] = new_preference;
 

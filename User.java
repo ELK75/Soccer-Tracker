@@ -45,9 +45,9 @@ public class User implements Serializable {
 
     public void sortByNamePreference() {
         if (players != null) {
-            if (preferences[1][1] == "Ascending")
+            if (preferences[1][1].equals("Ascending"))
                 sortByNamesAsc();
-            else if (preferences[1][1] == "Descending")
+            else if (preferences[1][1].equals("Descending"))
                 sortByNamesDesc();
         }
     }
@@ -94,9 +94,9 @@ public class User implements Serializable {
 
     public void sortByGoalPreferences() {
         if (players != null) {
-            if (preferences[0][1] == "Descending")
+            if (preferences[0][1].equals("Descending"))
                 sortByGoalsDesc();
-            else if (preferences[0][1] == "Ascending")
+            else if (preferences[0][1].equals("Ascending"))
                 sortByGoalsAsc();
         }
     }
