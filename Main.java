@@ -97,19 +97,20 @@ public class Main {
     // FUNCTIONS RELATING TO OPTION 1
     //
 
-    private static void updatePlayers(User user, int input) {
+    private static void updatePlayer(User user, int input) {
         System.out.println("Please enter a name...");
         String name = scan.nextLine();
-        // if user just presses enter does nothing`
-        if (name.isEmpty()) {}
-        else if (!nameAlreadyInputted(name, user)) {
-            user.getPlayer(input-1).setName(name);
-            user.getPlayer(input-1).setGoals(0);
-        } else {
-            int numberOfGoals = user.getPlayer(input-1).getGoals();
-            System.out.println("Name already entered. Has " +
-            + numberOfGoals + " " + goalOrGoals(numberOfGoals) + ".");
-            askToContinue();
+        // if user just presses enter does nothing
+        if (!name.isEmpty()) {
+            if (!nameAlreadyInputted(name, user)) {
+                user.getPlayer(input-1).setName(name);
+                user.getPlayer(input-1).setGoals(0);
+            } else {
+                int numberOfGoals = user.getPlayer(input-1).getGoals();
+                System.out.println("Name already entered. Has " +
+                + numberOfGoals + " " + goalOrGoals(numberOfGoals) + ".");
+                askToContinue();
+            }
         }
     }
 
@@ -129,8 +130,11 @@ public class Main {
         }
     }
 
-    private static void showPlayers(User user) {
+    private static void updatePlayers(User user) {
+
         System.out.println();
+
+        user.sortByNamesAsc();
         for (int i = 0; i < user.getNumberOfPlayers(); i++) {
             System.out.println((i+1) + ".) " + user.getPlayer(i).getName());
         }
@@ -144,7 +148,7 @@ public class Main {
                 if (wantsToClearPlayers())
                     user.clearPlayers();
             } else
-                updatePlayers(user, Integer.parseInt(input));
+                updatePlayer(user, Integer.parseInt(input));
         }
     }
 
@@ -154,12 +158,14 @@ public class Main {
         user.getNumberOfPlayersAllowed() + " players");
         System.out.println("Press enter without a name to exit...");
         for (int i = 0; i < user.getNumberOfPlayersAllowed(); i++) {
-            System.out.println("\nPlease enter the name of player " + (i+1) + 
-            " (max is " + user.getNumberOfPlayersAllowed() + ")");
+            String enterPlayerPrompt = "\nPlease enter the name of player " + (i+1) + 
+                " (max is " + user.getNumberOfPlayersAllowed() + ")";
+            System.out.println(enterPlayerPrompt);
 
             String name = scan.nextLine();
             while (i != 0 && nameAlreadyInputted(name, user)) {
-                System.out.println("Name already entered");
+                System.out.println("\n-Player already entered-");
+                System.out.println(enterPlayerPrompt);
                 name = scan.nextLine();
             }
             if (name.isEmpty())
@@ -174,12 +180,7 @@ public class Main {
     }
     
     private static void enterPlayers(User user) {
-        if (playersNotEntered(user)) {
-            inputPlayers(user);
-        } else {
-            user.alphabatizePlayers();
-            showPlayers(user);
-        }
+        inputPlayers(user);
     }
 
     //
@@ -220,20 +221,31 @@ public class Main {
 
     // method is necessary since there is a possibility of
     // multiple top scorers
-    // TODO SHOW USER IN A CLEANER MANNER
-    private static void printTopScorers(ArrayList<Player> players) {
+    private static ArrayList<String> getTopScorers(ArrayList<Player> players) {
         int mostGoalsScored = getMostGoalsScored(players);
+        ArrayList<String> topScorers = new ArrayList<String>();
         for (int i = 0; i < players.size(); i++) {
             if (players.get(i).getGoals() == mostGoalsScored) {
-                System.out.println(players.get(i).getName() + " is a top goal scorer");
+                topScorers.add(players.get(i).getName());
             }
-
         }
+        return topScorers;
+    }
+
+    private static void printTopScorers(ArrayList<Player> players) {
+        ArrayList<String> topScorers = getTopScorers(players);
+        System.out.print("Top scorers: ");
+        if (topScorers.size() >= 1)
+            System.out.print(topScorers.get(0));
+        for (int i = 1; i < topScorers.size(); i++) {
+            System.out.print(", " + topScorers.get(i));
+        }
+        System.out.println();
     }
 
     private static void viewPlayers(User user) {
-        user.alphabatizePlayers();
-        user.sortByGoals();
+        user.sortByNamePreference();
+        user.sortByGoalPreferences();
         System.out.println();
         for (int i = 0; i < user.getNumberOfPlayers(); i++) {
             System.out.printf(user.getPlayer(i).getName() + ", %,d " + 
@@ -241,8 +253,10 @@ public class Main {
         }
 
         System.out.println();
-        printTopScorers(user.getPlayers());
-        printPlayerStats(user);
+        if (user.getPreferences()[2][1] == "True") {
+            printTopScorers(user.getPlayers());
+            printPlayerStats(user);
+        }
 
         askToContinue();
     }
@@ -279,8 +293,8 @@ public class Main {
     }
     
     private static void printPlayerGoals(User user) {
-        user.alphabatizePlayers();
-        user.sortByGoals();
+        user.sortByNamesAsc();
+        user.sortByGoalsDesc();
         for (int i = 0; i < user.getNumberOfPlayers(); i++) {
             System.out.printf(i+1 + ".) " + user.getPlayer(i).getName() + ", %,d " +
              goalOrGoals(user.getPlayer(i).getGoals()) + "\n", user.getPlayer(i).getGoals());
@@ -318,6 +332,7 @@ public class Main {
 
         System.out.println();
         System.out.println(preferences[input-1][0] + " was changed to " + new_preference);
+        askToContinue();
     }
 
     public static void changePreferences(User user, String[][] preferences) {
@@ -327,9 +342,9 @@ public class Main {
         }
     }
 
-    public static void showPrefrences(User user) {
+    public static void showPreferences(User user) {
         System.out.println();
-        String[][] preferences = user.getPrefrences();
+        String[][] preferences = user.getPreferences();
         for (int i = 0; i < preferences.length; i++) {
             String spaces = String.format(
                 "%" + (25-preferences[i][0].length()) + "s", "");
@@ -354,9 +369,9 @@ public class Main {
             option1 = "1. Update/Delete players to track\n";
 
         if (user.getVipStatus())
-            option4 = "4. View/Update Prefrences\n";
+            option4 = "4. View/Update Preferences\n";
         else
-            option4 = "4. View/Update Prefrences(VIP only)\n";
+            option4 = "4. View/Update Preferences(VIP only)\n";
 
         System.out.println();
         System.out.println(option1 +
@@ -376,14 +391,17 @@ public class Main {
             promptUser(user);
             String input = getPromptInput(user);
             switch (Integer.parseInt(input)) {
-                case 1: enterPlayers(user);
+                case 1: if (playersNotEntered(user))
+                            enterPlayers(user);
+                        else
+                            updatePlayers(user);
                         break;
                 case 2: viewPlayers(user);
                         break;
                 case 3: updateGoals(user);
                         break;
                 case 4: if (user.getVipStatus())
-                            showPrefrences(user);
+                            showPreferences(user);
                         else
                             showPromptForSubscription();
                         break;

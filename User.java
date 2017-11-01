@@ -9,7 +9,7 @@ public class User implements Serializable {
     private static Scanner scan = new Scanner(System.in);
     private boolean vip = false;
     private ArrayList<Player> players = new ArrayList<Player>();
-    private String[][] prefrences = {{"Goals sort order", "Descending"}, 
+    private String[][] preferences = {{"Goals sort order", "Descending"}, 
                                     {"Names sort order", "Ascending"}, 
                                     {"Show goal summary", "True"}};
 
@@ -20,8 +20,7 @@ public class User implements Serializable {
     public void setVip() {
         System.out.print("\nPlease enter your VIP password to access the list...\n");
 
-        // TODO CHANGE
-        String password = "a";
+        String password = "#ChelseaIsTheBest";
         String tried_password = scan.nextLine();
         if (password.equals(tried_password)) {
             System.out.println("Access granted...");
@@ -32,13 +31,25 @@ public class User implements Serializable {
         }
     }
 
-    public String[][] getPrefrences() {
-        return prefrences;
+    public String[][] getPreferences() {
+        return preferences;
     }
 
-    public void alphabatizePlayers() {
-        if (players != null)
-            Collections.sort(players, (a,b) -> a.getName().compareTo(b.getName()));
+    public void sortByNamesAsc() {
+        Collections.sort(players, (a,b) -> a.getName().compareTo(b.getName()));
+    }
+
+    public void sortByNamesDesc() {
+        Collections.sort(players, (a,b) -> b.getName().compareTo(a.getName()));
+    }
+
+    public void sortByNamePreference() {
+        if (players != null) {
+            if (preferences[1][1] == "Ascending")
+                sortByNamesAsc();
+            else if (preferences[1][1] == "Descending")
+                sortByNamesDesc();
+        }
     }
 
     public boolean getVipStatus() {
@@ -73,9 +84,21 @@ public class User implements Serializable {
         return playerGoals;
     }
 
-    public void sortByGoals() {
-        if (players != null)
-            Collections.sort(players, (a,b) -> compare(a.getGoals(), b.getGoals()));
+    public void sortByGoalsDesc() {
+        Collections.sort(players, (a,b) -> compare(a.getGoals(), b.getGoals()));
+    }
+
+    public void sortByGoalsAsc() {
+        Collections.sort(players, (a,b) -> compare(b.getGoals(), a.getGoals()));
+    }
+
+    public void sortByGoalPreferences() {
+        if (players != null) {
+            if (preferences[0][1] == "Descending")
+                sortByGoalsDesc();
+            else if (preferences[0][1] == "Ascending")
+                sortByGoalsAsc();
+        }
     }
 
     public Player getPlayer(int index) {
@@ -91,13 +114,9 @@ public class User implements Serializable {
         return players.size();
     }
 
-    // sorts in descending order
     private int compare(int one, int two) {
-        if (one > two)
-            return -1;
-        else if (two < one)
-            return 1;
-        else
-            return 0;
+        if (one > two) return -1;
+        else if (one < two) return 1;
+        else return 0;
     }
 }
