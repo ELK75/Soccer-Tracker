@@ -178,8 +178,10 @@ public class Main {
             else {
                 Player player = new Player(name);
                 user.getPlayers().add(player);
-                if (i == user.getNumberOfPlayersAllowed() - 1)
+                if (i == user.getNumberOfPlayersAllowed() - 1) {
                     System.out.println("\nMax players entered...");
+                    askToContinue();
+                }
             }
         }
     }
@@ -427,6 +429,7 @@ public class Main {
         // they get prompted as to whether they are VIPs
         } else {
             user.setVip();
+            askToContinue();
         }
         introScreen(user);
     }

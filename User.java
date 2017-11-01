@@ -23,10 +23,10 @@ public class User implements Serializable {
         String password = "#ChelseaIsTheBest";
         String tried_password = scan.nextLine();
         if (password.equals(tried_password)) {
-            System.out.println("Access granted...");
+            System.out.println("\nAccess granted...");
             vip = true;
         } else {
-            System.out.println("Incorrect password...");
+            System.out.println("\nIncorrect password...");
             vip = false;
         }
     }
