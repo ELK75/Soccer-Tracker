@@ -188,33 +188,46 @@ public class MainMenu {
             for (int i = 0; i < user.getNumberOfPlayers(); i++) {
                 Label lblPlayerAndGoals = new Label(user.getPlayerAndGoalsString(i));
                 lblPlayerAndGoals.setFont(new Font(15));
-                lblPlayerAndGoals.setPrefWidth(125);
+                lblPlayerAndGoals.setPrefWidth(300);
                 panelPlayerAndGoals.getChildren().add(lblPlayerAndGoals);
             }
-            panelPlayerAndGoals.setPadding(new Insets (30, 0, 0, 150));
+            panelPlayerAndGoals.setPadding(new Insets (10, 0, 0, 10));
 
-            VBox panelPlayerStats = new VBox();
 
-            Label lblTopScorers = new Label(user.returnTopScorers());
-            lblTopScorers.setFont(new Font(15));
-            lblTopScorers.setPrefWidth(350);
-            panelPlayerStats.getChildren().add(lblTopScorers);
+            VBox panelPlayerStats = new VBox(5);
 
-            Label lblGoalAverage = new Label(user.getGoalAverage());
-            lblGoalAverage.setFont(new Font(15));
-            lblGoalAverage.setPrefWidth(350);
-            panelPlayerStats.getChildren().add(lblGoalAverage);
+            if (user.getPreferences()[2][1].equals("True")) {
+                Label lblTopScorers = new Label(user.returnTopScorers());
+                lblTopScorers.setFont(new Font(15));
+                lblTopScorers.setPrefWidth(350);
+                panelPlayerStats.getChildren().add(lblTopScorers);
 
-            Label lblGoalTotal = new Label(user.getGoalTotal());
-            lblGoalTotal.setFont(new Font(15));
-            lblGoalTotal.setPrefWidth(350);
-            panelPlayerStats.getChildren().add(lblGoalTotal);
+                Label lblGoalAverage = new Label(user.getGoalAverage());
+                lblGoalAverage.setFont(new Font(15));
+                lblGoalAverage.setPrefWidth(350);
+                panelPlayerStats.getChildren().add(lblGoalAverage);
+
+                Label lblGoalTotal = new Label(user.getGoalTotal());
+                lblGoalTotal.setFont(new Font(15));
+                lblGoalTotal.setPrefWidth(350);
+                panelPlayerStats.getChildren().add(lblGoalTotal);
+
+                panelPlayerStats.setPadding(new Insets(30, 10, 10, 10));
+            }
+
+            HBox paneButton = new HBox();
+            Button btnClose = new Button("Close");
+            btnClose.setPadding(new Insets(15, 20, 15, 20));
+            btnClose.setOnAction(e -> stage.close());
+            paneButton.getChildren().add(btnClose);
+            paneButton.setPadding(new Insets(0, 0, 10, 165));
 
             BorderPane paneMain = new BorderPane();
-            paneMain.setCenter(panelPlayerAndGoals);
-            paneMain.setBottom(panelPlayerStats);
+            paneMain.setTop(panelPlayerAndGoals);
+            paneMain.setCenter(panelPlayerStats);
+            paneMain.setBottom(paneButton);
 
-            Scene scene = new Scene(paneMain, 400, 350);
+            Scene scene = new Scene(paneMain, 400, 450);
             stage.setScene(scene);
             stage.setTitle("Player Stats");
             stage.showAndWait();
@@ -226,6 +239,7 @@ public class MainMenu {
         if (user.playersNotEntered()) playersNotEnteredPrompt();
         else {
             user.sortByNamePreference();
+            user.sortByGoalPreferences();
 
             GenericListView updateView = new GenericListView("Select Player to Update", user.getPlayerListView());
             Stage updateStage = updateView.getStage();
@@ -259,7 +273,7 @@ public class MainMenu {
                 updateTextBox.getBtnOK().setOnAction(e -> updatePlayer(
                     updateTextBox.getTextField().getText(), playerIndex, 
                     updateStage, parentStage));
-                updateTextBox.getBtnCancel().setOnAction(e -> stage.close());
+                updateTextBox.getBtnCancel().setOnAction(e -> updateStage.close());
 
                 updateStage.showAndWait();
                 
@@ -271,8 +285,11 @@ public class MainMenu {
         Alert prompt = new Alert(AlertType.INFORMATION);
         prompt.setHeaderText("Update Players");
         if (user.nameAlreadyInputted(newName)) {
-            prompt.setContentText("Player Already Entered");
+            prompt.setContentText("Player Already Entered has " + user.getPlayer(playerIndex).getGoals() +
+                " " + user.goalOrGoals(user.getPlayer(playerIndex).getGoals()));
             prompt.showAndWait();
+            currentStage.close();
+            parentStage.close();
         } else if (newName.isEmpty()) {
             prompt.setContentText("Please Enter A Name");
             prompt.showAndWait();
@@ -378,7 +395,7 @@ public class MainMenu {
         updateTextBox.getBtnOK().setOnAction(e -> addGoalsToPlayer(
             updateTextBox.getTextField().getText(), playerIndex, 
             updateStage, parentStage));
-        updateTextBox.getBtnCancel().setOnAction(e -> stage.close());
+        updateTextBox.getBtnCancel().setOnAction(e -> updateStage.close());
 
         updateStage.showAndWait();
     }
@@ -395,6 +412,11 @@ public class MainMenu {
             updateStage.close();
             parentStage.close();
 
+        } else {
+            Alert addGoalsPrompt = new Alert(AlertType.INFORMATION);
+            addGoalsPrompt.setHeaderText("Invalid Input");
+            addGoalsPrompt.setContentText("Please Enter a Postivie Number of Goals");
+            addGoalsPrompt.showAndWait();
         }
     }
 

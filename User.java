@@ -143,13 +143,6 @@ public class User implements Serializable {
         return false;
     }
     
-    private void askToContinue() {
-        System.out.print("-Press enter to continue-");
-        try{System.in.read();}
-        catch(Exception e){}
-        scan.nextLine();
-    }
-    
     public ListView<String> getPlayerListView() {
         ListView<String> playerListView = new ListView<String>();
         for (int i = 0; i < getNumberOfPlayers(); i++) {
@@ -174,148 +167,12 @@ public class User implements Serializable {
         return count == 1 ? "goal" : "goals";
     }
     
-    private String getBetweenTwoNumbers(int numOne, int numTwo) {
-        String promptForInput;
-        if (numTwo == numOne)
-            promptForInput = "\nPlease select number " + numOne;
-        else promptForInput = "\nPlease select a number between " 
-            + numOne + " and " + numTwo;
-        System.out.println(promptForInput);
-    
-        String input = scan.nextLine();
-    
-        while (true) {
-            if (input.isEmpty()) return input;
-            
-            if (!isInteger(input) || 
-            Integer.parseInt(input) < numOne || Integer.parseInt(input) > numTwo) {
-                System.out.println(promptForInput);
-                input = scan.nextLine();
-            } else break;
-        }
-        return input;       
-    }
-    
-    private String getPromptInput() {
-        String input;
-        // loops until user enters correct input
-        while (true) {
-            input = scan.nextLine();
-            if (!isInteger(input) || Integer.parseInt(input) < 1 || Integer.parseInt(input) > 5) {
-                System.out.println("\nPlease enter a number (1-5)...");
-                askToContinue();
-                //promptUser();
-            } else if ((Integer.parseInt(input) == 2 || Integer.parseInt(input) == 3) 
-                && playersNotEntered()) {
-                    System.out.println("\nMust enter players first...");
-                    askToContinue();
-                    //promptUser();
-            } else {
-                break;
-            }
-        }
-        return input;
-    }
-    
-    //
-    // FUNCTIONS RELATING TO OPTION 1
-    //
-    
-    public void updatePlayer(int input) {
-        System.out.println("Please enter a name...");
-        String name = scan.nextLine();
-        // if user just presses enter does nothing
-        if (!name.isEmpty()) {
-            if (!nameAlreadyInputted(name)) {
-                getPlayer(input-1).setName(name);
-                getPlayer(input-1).setGoals(0);
-            } else {
-                int numberOfGoals = getPlayer(input-1).getGoals();
-                System.out.println();
-                System.out.println("Name already entered. Has " +
-                + numberOfGoals + " " + goalOrGoals(numberOfGoals) + ".");
-                askToContinue();
-            }
-        }
-    }
-    
-    private boolean wantsToClearPlayers() {
-        System.out.println("\nWARNING: This will clear all players.");
-    
-        while (true) {
-            System.out.println("Are you sure you want to continue? (y/n)");
-            String input = scan.nextLine();
-            if (input.equals("y") || input.equals("Y"))
-                return true;
-            else if (input.equals("n") || input.equals("N") || input.isEmpty())
-                return false;
-            else {
-                System.out.println("\nCould not understand input...");
-            }
-        }
-    }
-    
     public int getIndexFromName(String playerName) {
         for (int i = 0; i < getNumberOfPlayers(); i++) {
             if (getPlayer(i).getName().equals(playerName)) 
                 return i;
         }
         return -1;
-    }
-
-    private void updatePlayers() {
-    
-        System.out.println();
-    
-        sortByNamesAsc();
-        for (int i = 0; i < getNumberOfPlayers(); i++) {
-            System.out.println((i+1) + ".) " + getPlayer(i).getName());
-        }
-    
-        int inputToClearAllPlayers = getNumberOfPlayers()+1;
-        System.out.println(inputToClearAllPlayers + ".) <Clear list of players>");
-    
-        String input = getBetweenTwoNumbers(1, inputToClearAllPlayers);
-        if (!input.isEmpty()) {
-            if (Integer.parseInt(input) == inputToClearAllPlayers) {
-                if (wantsToClearPlayers())
-                    clearPlayers();
-            } else
-                updatePlayer(Integer.parseInt(input));
-        }
-    }
-    
-    private void inputPlayers() {
-    
-        System.out.println("\nEnter the names of " + 
-        getNumberOfPlayersAllowed() + " players");
-        System.out.println("Press enter without a name to exit...");
-        for (int i = 0; i < getNumberOfPlayersAllowed(); i++) {
-            String enterPlayerPrompt = "\nPlease enter the name of player " + (i+1) + 
-                " (max is " + getNumberOfPlayersAllowed() + ")";
-            System.out.println(enterPlayerPrompt);
-    
-            String name = scan.nextLine();
-            while (i != 0 && nameAlreadyInputted(name)) {
-                System.out.println("\n-Player already entered-");
-                System.out.println(enterPlayerPrompt);
-                name = scan.nextLine();
-            }
-            if (name.isEmpty())
-                break;
-            else {
-                Player player = new Player(name);
-                getPlayers().add(player);
-                if (i == getNumberOfPlayersAllowed() - 1) {
-                    System.out.println("\nMax players entered...");
-                    askToContinue();
-                }
-            }
-        }
-    }
-    
-    public void enterPlayers() {
-        inputPlayers();
     }
 
     private int[] goalArray() {
@@ -388,81 +245,6 @@ public class User implements Serializable {
             goalOrGoals(getPlayer(index).getGoals()), getPlayer(index).getGoals());
         return playerAndGoals;
     }
-
-    /*
-    public void viewPlayers() {
-        sortByNamePreference();
-        sortByGoalPreferences();
-        System.out.println();
-        for (int i = 0; i < getNumberOfPlayers(); i++) {
-            System.out.printf(getPlayer(i).getName() + ", %,d " + 
-            goalOrGoals(getPlayer(i).getGoals()) + "\n", getPlayer(i).getGoals());
-        }
-    
-        System.out.println();
-        if (getPreferences()[2][1].equals("True")) {
-            printTopScorers();
-            printPlayerStats();
-        }
-    
-        askToContinue();
-    } */
-    
-    //
-    // FUNCTIONS RELATING TO OPTION 3
-    //
-    
-    private void addGoals(int player) {
-    
-        // subtracts one to get index of player
-        int playerIndex = player - 1;
-    
-        System.out.printf("\n" + getPlayer(playerIndex).getName() + " has %,d " +
-        goalOrGoals(getPlayer(playerIndex).getGoals()) + " how many do you want to add...\n", 
-        getPlayer(playerIndex).getGoals());
-    
-        String input = scan.nextLine();
-        int goalsToAdd = 0;
-        String promptForInvalidInput = "Please enter a positive number...";
-        while (true) {
-            if (input.isEmpty()) break;
-            else if (!isInteger(input)) System.out.println(promptForInvalidInput);
-            else {
-                goalsToAdd = Integer.parseInt(input);
-                if (goalsToAdd < 0) System.out.println(promptForInvalidInput);
-                else {
-                    getPlayer(playerIndex).addGoals(goalsToAdd);
-                    break;
-                }
-            }
-            input = scan.nextLine();
-        }
-    }
-    
-    private void printPlayerGoals() {
-        sortByNamesAsc();
-        sortByGoalsDesc();
-        for (int i = 0; i < getNumberOfPlayers(); i++) {
-            System.out.printf(i+1 + ".) " + getPlayer(i).getName() + ", %,d " +
-             goalOrGoals(getPlayer(i).getGoals()) + "\n", getPlayer(i).getGoals());
-        }
-    }
-    
-    public void updateGoals() {
-        System.out.println();
-        printPlayerGoals();
-        String playerNumber = getBetweenTwoNumbers(1, getNumberOfPlayers());
-        if (!playerNumber.isEmpty()) addGoals(Integer.parseInt(playerNumber));
-    }
-    
-    //
-    // FUNCTIONS RELATING TO OPTION 4
-    //
-    
-    public void showPromptForSubscription() {
-        System.out.println("\nAccess denied. Please contact a Sassy Soccer sales rep " +
-        "for a VIP subscription");
-    }
     
     public void changePreference(int input) {
         String current_preference = preferences[input-1][1];
@@ -476,26 +258,4 @@ public class User implements Serializable {
     
         preferences[input-1][1] = new_preference;
     }
-    /*
-    private void changePreferences(String[][] preferences) {
-        String input = getBetweenTwoNumbers(1, preferences.length);
-        if (!input.isEmpty()) {
-            changePreference(Integer.parseInt(input), preferences);
-        }
-    }*/
-    /*
-    
-    public void showPreferences() {
-        System.out.println();
-        String[][] preferences = getPreferences();
-        for (int i = 0; i < preferences.length; i++) {
-            String spaces = String.format(
-                "%" + (25-preferences[i][0].length()) + "s", "");
-            System.out.println(
-                preferences[i][0] + spaces + "[" + preferences[i][1] + "]");
-        }
-    
-        changePreferences(preferences);
-    }
-    */
 }
