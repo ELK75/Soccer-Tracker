@@ -43,7 +43,13 @@ public class MainMenu {
         // File menu options
         MenuItem saveAndExit = new MenuItem("Save and Exit");
         // TODO FIX
-        //saveAndExit.setOnAction(e -> saveAndExit());
+        saveAndExit.setOnAction(e -> {
+            try {
+                saveAndExit();
+            } catch (Exception exception) {
+                throw new RuntimeException();
+            }
+        });
         fileMenu.getItems().add(saveAndExit);
 
         // Player menu options
@@ -80,7 +86,7 @@ public class MainMenu {
     }
 
     public void saveAndExit() throws Exception {
-        //DataFile.writeUserFile(user, User.USER_FILE);
+        DataFile.writeUserFile(user, User.USER_FILE);
         stage.close();
     }
 
