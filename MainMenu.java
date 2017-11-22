@@ -64,8 +64,11 @@ public class MainMenu {
 
         MenuItem addGoals = new MenuItem("Add Goals");
         addGoals.setOnAction(e -> addGoals());
-
         goalMenu.getItems().add(addGoals);
+
+        MenuItem changePreferences = new MenuItem("Change Preferences");
+        changePreferences.setOnAction(e -> changePreferences());
+        preferenceMenu.getItems().add(changePreferences);
 
         MenuBar menuBar = new MenuBar();
         menuBar.getMenus().addAll(fileMenu, playerMenu, goalMenu, preferenceMenu);
@@ -218,10 +221,10 @@ public class MainMenu {
         else {
             user.sortByNamePreference();
 
-            GenericListView updateView = new GenericListView("Select Player to Update", user);
+            GenericListView updateView = new GenericListView("Select Player to Update", user.getPlayerListView());
             Stage updateStage = updateView.getStage();
             updateView.getSubmitButton().setOnAction(e -> setPlayerName(
-                updateView.getPlayerListView(), updateStage));
+                updateView.getListView(), updateStage));
             updateStage.showAndWait();
         }
     }
@@ -282,10 +285,10 @@ public class MainMenu {
         else {
             user.sortByNamePreference();
 
-            GenericListView deleteView = new GenericListView("Select Player to Delete", user);
+            GenericListView deleteView = new GenericListView("Select Player to Delete", user.getPlayerListView());
             Stage deleteStage = deleteView.getStage();
             deleteView.getSubmitButton().setOnAction(e -> deletePlayerName(
-                deleteView.getPlayerListView(), deleteStage));
+                deleteView.getListView(), deleteStage));
             deleteStage.showAndWait();
         }
     }
@@ -347,10 +350,10 @@ public class MainMenu {
         else {
             user.sortByNamePreference();
 
-            GenericListView goalView = new GenericListView("Select Player to Add Goals", user);
+            GenericListView goalView = new GenericListView("Select Player to Add Goals", user.getPlayerListView());
             Stage goalStage = goalView.getStage();
             goalView.getSubmitButton().setOnAction(e -> addPlayerGoals(
-                goalView.getPlayerListView(), goalStage));
+                goalView.getListView(), goalStage));
             goalStage.showAndWait();
         }
     }
@@ -389,4 +392,36 @@ public class MainMenu {
         }
     }
 
+    public void changePreferences() {
+        if (!user.getIsVip()) {
+            Alert addGoalsPrompt = new Alert(AlertType.INFORMATION);
+            addGoalsPrompt.setHeaderText("Access Denied");
+            addGoalsPrompt.setContentText("Contact a Sassy Soccer representive for a VIP subscription");
+            addGoalsPrompt.showAndWait();
+        } else {
+            GenericListView preferenceView = new GenericListView("Select Preference", user.getPreferenceListView());
+            Stage preferenceStage = preferenceView.getStage();
+            preferenceView.getSubmitButton().setOnAction(e -> changePreference(
+                preferenceView.getListView(), preferenceStage));
+            preferenceStage.showAndWait();
+        }
+    }
+
+    public void changePreference(ListView<String> preferenceView, Stage goalStage) {
+        String selectedPreference = preferenceView.getSelectionModel().getSelectedItem();
+        int preferenceSelected = 1;
+
+        if (selectedPreference.substring(0, 4).equals("Goal")) preferenceSelected = 1;
+        if (selectedPreference.substring(0, 4).equals("Name")) preferenceSelected = 2;
+        if (selectedPreference.substring(0, 4).equals("Show")) preferenceSelected = 3;
+
+        user.changePreference(preferenceSelected);
+
+        Alert preferencePrompt = new Alert(AlertType.INFORMATION);
+        preferencePrompt.setContentText("Changed to " + user.getPreferences()[preferenceSelected-1][1]);
+        preferencePrompt.showAndWait();
+
+        goalStage.close();
+
+    }
 }

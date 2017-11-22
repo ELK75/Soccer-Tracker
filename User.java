@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.io.Serializable;
 import javafx.stage.*;
+import javafx.scene.control.*;
 
 public class User implements Serializable {
 
@@ -149,6 +150,25 @@ public class User implements Serializable {
         scan.nextLine();
     }
     
+    public ListView<String> getPlayerListView() {
+        ListView<String> playerListView = new ListView<String>();
+        for (int i = 0; i < getNumberOfPlayers(); i++) {
+            playerListView.getItems().add(getPlayer(i).getName());
+        }
+        return playerListView;
+    }
+
+    public ListView<String> getPreferenceListView() {
+        ListView<String> preferenceListView = new ListView<String>();
+        String preference = "";
+        for (int i = 0; i < 3; i++) {
+            preference += preferences[i][0] + " : " + preferences[i][1];
+            preferenceListView.getItems().add(preference);
+            preference = "";
+        }
+        return preferenceListView;
+    }
+
     // returns either singular or plural form of goal
     public String goalOrGoals(int count) {
         return count == 1 ? "goal" : "goals";
@@ -444,7 +464,7 @@ public class User implements Serializable {
         "for a VIP subscription");
     }
     
-    private void changePreference(int input, String[][] preferences) {
+    public void changePreference(int input) {
         String current_preference = preferences[input-1][1];
         String new_preference = "";
         if (current_preference.equals("Ascending") || current_preference.equals("Descending"))
@@ -455,17 +475,15 @@ public class User implements Serializable {
             new_preference = current_preference.equals("True") ? "False" : "True";
     
         preferences[input-1][1] = new_preference;
-    
-        System.out.println();
-        System.out.println(preferences[input-1][0] + " was changed to " + new_preference);
     }
-    
+    /*
     private void changePreferences(String[][] preferences) {
         String input = getBetweenTwoNumbers(1, preferences.length);
         if (!input.isEmpty()) {
             changePreference(Integer.parseInt(input), preferences);
         }
-    }
+    }*/
+    /*
     
     public void showPreferences() {
         System.out.println();
@@ -479,4 +497,5 @@ public class User implements Serializable {
     
         changePreferences(preferences);
     }
+    */
 }

@@ -18,13 +18,12 @@ import javafx.scene.text.*;
 public class GenericListView {
 
     private String lblText;
-    private User user;
     private Button submitButton;
-    private ListView<String> playerListView;
+    private ListView<String> listView;
 
-    public GenericListView(String lblText, User user) {
+    public GenericListView(String lblText, ListView<String> listView) {
         this.lblText = lblText;
-        this.user = user;
+        this.listView = listView;
     }
 
     public Stage getStage() {
@@ -32,13 +31,8 @@ public class GenericListView {
         Stage updateStage = new Stage();
 
         Label lblUpdate = new Label(lblText);
-        
-        this.playerListView = new ListView<String>();
-        for (int i = 0; i < user.getNumberOfPlayers(); i++) {
-            playerListView.getItems().add(user.getPlayer(i).getName());
-        }
 
-        HBox topBox = new HBox(60, lblUpdate, playerListView);
+        HBox topBox = new HBox(60, lblUpdate, listView);
         topBox.setPadding(new Insets(10, 20, 10, 20));
         topBox.setAlignment(Pos.CENTER);
 
@@ -56,7 +50,7 @@ public class GenericListView {
         return submitButton;
     }
 
-    public ListView<String> getPlayerListView() {
-        return playerListView;
+    public ListView<String> getListView() {
+        return listView;
     }
 }
