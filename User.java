@@ -20,8 +20,7 @@ public class User implements Serializable {
     // sets VIP status based upon whether the user
     // enters the correct password
     public void determineIfUserVip(Stage stage) {
-        // TODO CHANGE TO "#ChelseaIsTheBest"
-        String password = "a";
+        String password = "#ChelseaIsTheBest";
         VipMenu vipMenu = new VipMenu(password);
         vipMenu.start();
         isVip = vipMenu.getIsVip();
