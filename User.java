@@ -151,6 +151,15 @@ public class User implements Serializable {
         return playerListView;
     }
 
+    public ListView<String> getPlayerListViewWithGoals() {
+        ListView<String> playerListViewWithGoals = new ListView<String>();
+        for (int i = 0; i < getNumberOfPlayers(); i++) {
+            String playerAndGoals = getPlayer(i).getName() + ": " + getPlayer(i).getGoals();
+            playerListViewWithGoals.getItems().add(playerAndGoals);
+        }
+        return playerListViewWithGoals;
+    }
+
     public ListView<String> getPreferenceListView() {
         ListView<String> preferenceListView = new ListView<String>();
         String preference = "";

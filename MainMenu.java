@@ -241,7 +241,7 @@ public class MainMenu {
             user.sortByNamePreference();
             user.sortByGoalPreferences();
 
-            GenericListView updateView = new GenericListView("Select Player to Update", user.getPlayerListView());
+            GenericListView updateView = new GenericListView("Select Player to Update", user.getPlayerListViewWithGoals());
             Stage updateStage = updateView.getStage();
             updateView.getSubmitButton().setOnAction(e -> setPlayerName(
                 updateView.getListView(), updateStage));
@@ -261,6 +261,7 @@ public class MainMenu {
             playersNotEnteredPrompt();
         } else {
             String selectedPlayer = playerListView.getSelectionModel().getSelectedItem();
+            selectedPlayer = selectedPlayer.substring(0, selectedPlayer.lastIndexOf(':'));
             if (selectedPlayer != null) {
                 int playerIndex = user.getIndexFromName(selectedPlayer);
 
@@ -373,7 +374,7 @@ public class MainMenu {
         else {
             user.sortByNamePreference();
 
-            GenericListView goalView = new GenericListView("Select Player to Add Goals", user.getPlayerListView());
+            GenericListView goalView = new GenericListView("Select Player to Add Goals", user.getPlayerListViewWithGoals());
             Stage goalStage = goalView.getStage();
             goalView.getSubmitButton().setOnAction(e -> addPlayerGoals(
                 goalView.getListView(), goalStage));
@@ -384,6 +385,7 @@ public class MainMenu {
     public void addPlayerGoals(ListView<String> playerListView, Stage parentStage) {
 
         String selectedPlayer = playerListView.getSelectionModel().getSelectedItem();
+        selectedPlayer = selectedPlayer.substring(0, selectedPlayer.lastIndexOf(':'));
         int playerIndex = user.getIndexFromName(selectedPlayer);
         
         GenericTextBox updateTextBox = new GenericTextBox("Update Player", "Goals:");
