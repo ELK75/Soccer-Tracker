@@ -205,11 +205,11 @@ public class User implements Serializable {
     }
 
     public String getGoalAverage() {
-        return String.format("Average number of goals is %,.2f\n", arrayAverage(goalArray()));
+        return String.format("Average number of goals is %,.2f", arrayAverage(goalArray()));
     }
     
     public String getGoalTotal() {
-        return String.format("The total number of goals is %,d\n\n", arraySum(goalArray()));
+        return String.format("The total number of goals is %,d", arraySum(goalArray()));
     }
     
     private double arrayAverage(int[] arr) {

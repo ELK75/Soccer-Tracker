@@ -9,14 +9,6 @@ import javafx.stage.*;
 // GITHUB: https://github.com/Elijah-Kajinic/Soccer-Tracker
 //
 
-//
-// TODO
-//
-// Add:
-// TextArea
-// TextInputDialog
-//
-
 public class Main extends Application {
 
     private User user;
@@ -56,7 +48,6 @@ public class Main extends Application {
         } else {
             determineIfUserVip();
         }
-        launchMainMenu();
     }
 
     public static void main(String[] args) throws Exception {

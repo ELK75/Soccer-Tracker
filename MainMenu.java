@@ -22,6 +22,8 @@ public class MainMenu {
     private User user;
     private int menuWidth = 400;
     private int menuHeight = 350;
+    // where text of players will be displayed
+    private Label display = new Label();
 
     public MainMenu(User user) {
         this.user = user;
@@ -43,9 +45,11 @@ public class MainMenu {
         this.stage = new Stage();
         stage.setTitle("Main Menu");
 
-        HBox menuPane = new HBox();
-        // will contain menuPane as well as text box
+        // will contain Menu as well as the Display
         VBox mainPane = new VBox();
+
+        display.setWrapText(true);
+        display.setFont(new Font(15));
 
         // Main menu bar
         Menu fileMenu = new Menu("File");
@@ -53,7 +57,7 @@ public class MainMenu {
         Menu goalMenu = new Menu("Goals");
         Menu preferenceMenu = new Menu("Preferences");
 
-        // File menu options
+        // Menu Items for Saving File
         MenuItem saveAndExit = new MenuItem("Save and Exit");
         saveAndExit.setOnAction(e -> {
             try {
@@ -67,8 +71,6 @@ public class MainMenu {
         // Player menu options
         MenuItem newPlayers = new MenuItem("New");
         newPlayers.setOnAction(e -> addNewPlayers());
-        MenuItem viewPlayers = new MenuItem("View");
-        viewPlayers.setOnAction(e -> viewPlayers());
         MenuItem updatePlayers = new MenuItem("Update");
         updatePlayers.setOnAction(e -> updatePlayers());
         MenuItem deletePlayers = new MenuItem("Delete Players");
@@ -76,28 +78,30 @@ public class MainMenu {
         MenuItem deleteAllPlayers = new MenuItem("Delete All Players");
         deleteAllPlayers.setOnAction(e -> deleteAllPlayers());
 
-        
-
         playerMenu.getItems().addAll(
-            newPlayers, viewPlayers, updatePlayers, deletePlayers, deleteAllPlayers
+            newPlayers, updatePlayers, deletePlayers, deleteAllPlayers
         );
 
+        // Goal Menu Option
         MenuItem addGoals = new MenuItem("Add Goals");
         addGoals.setOnAction(e -> addGoals());
         goalMenu.getItems().add(addGoals);
 
+        // Menu Items for Preferences
         MenuItem changePreferences = new MenuItem("Change Preferences");
         changePreferences.setOnAction(e -> changePreferences());
         preferenceMenu.getItems().add(changePreferences);
 
+        // Main Menu Bar
         MenuBar menuBar = new MenuBar();
         menuBar.getMenus().addAll(fileMenu, playerMenu, goalMenu, preferenceMenu);
-        menuPane.getChildren().add(menuBar);
 
-        // Setting TextArea
-        Text text = new Text();
+        // Main Pane
+        mainPane.getChildren().addAll(menuBar, display);
 
-        mainPane.getChildren().addAll(menuPane, text);
+        // Displays players
+        // if user entered players in a previous session
+        updateDisplay();
 
         Scene scene = new Scene(mainPane, menuWidth, menuHeight);
         stage.setScene(scene);
@@ -166,19 +170,11 @@ public class MainMenu {
             addNewPlayerStage.setScene(scene);
             addNewPlayerStage.setTitle("Add Players");
             addNewPlayerStage.showAndWait();
-        } else {
-            Alert prompt = new Alert(AlertType.INFORMATION);
-            prompt.setHeaderText("Add Players");
-            prompt.setContentText("Players Already Entered");
-            prompt.showAndWait();
-        }
-    }
 
-    // change to only accept integers
-    public void enterPlayer(String playerName, String playerGoals) {
-        Player player = new Player(playerName);
-        player.setGoals(Integer.parseInt(playerGoals));
-        user.getPlayers().add(player);
+            updateDisplay();
+        } else {
+            Dialog.showMessage("Players", "Players Already Entered", null);
+        }
     }
 
     public void inputPlayers(TextField[] textPlayers, TextField[] textGoals, Stage stage) {
@@ -197,65 +193,28 @@ public class MainMenu {
         stage.close();
     }
 
-    public void viewPlayers() {
-        if (user.playersNotEntered()) playersNotEnteredPrompt();
-        else {
+    public void updateDisplay() {
+        if (user.playersNotEntered()) {
+            display.setText("");
+        } else {
+
             user.sortByNamePreference();
             user.sortByGoalPreferences();
 
-            Stage stage = new Stage();
-
-            // printing player and goals
-            VBox panelPlayerAndGoals = new VBox(5);
-            for (int i = 0; i < user.getNumberOfPlayers(); i++) {
-                Label lblPlayerAndGoals = new Label(user.getPlayerAndGoalsString(i));
-                lblPlayerAndGoals.setFont(new Font(15));
-                lblPlayerAndGoals.setPrefWidth(300);
-                panelPlayerAndGoals.getChildren().add(lblPlayerAndGoals);
-            }
-            panelPlayerAndGoals.setPadding(new Insets (10, 0, 0, 10));
-
-
-            VBox panelPlayerStats = new VBox(5);
-            // if user preference is to show player stats
-            if (user.getPreferences()[2][1].equals("True")) {
-                Label lblTopScorers = new Label(user.returnTopScorers());
-                lblTopScorers.setFont(new Font(15));
-                lblTopScorers.setPrefWidth(350);
-                panelPlayerStats.getChildren().add(lblTopScorers);
-
-                Label lblGoalAverage = new Label(user.getGoalAverage());
-                lblGoalAverage.setFont(new Font(15));
-                lblGoalAverage.setPrefWidth(350);
-                panelPlayerStats.getChildren().add(lblGoalAverage);
-
-                Label lblGoalTotal = new Label(user.getGoalTotal());
-                lblGoalTotal.setFont(new Font(15));
-                lblGoalTotal.setPrefWidth(350);
-                panelPlayerStats.getChildren().add(lblGoalTotal);
-
-                panelPlayerStats.setPadding(new Insets(30, 10, 10, 10));
+            String playersAndGoals = "\n";
+            for (String playerAndGoals : user.getPlayerNamesAndGoals()) {
+                playersAndGoals += playerAndGoals + "\n";
             }
 
-            HBox paneButton = new HBox();
+            String playerStats = "\n";
+            String wantsPlayerStatsShown = user.getPreferences()[2][1];
+            if (wantsPlayerStatsShown.equals("True")) {
 
-            // close button
-            Button btnClose = new Button("Close");
-            btnClose.setPadding(new Insets(15, 20, 15, 20));
-            btnClose.setOnAction(e -> stage.close());
+                playerStats += user.returnTopScorers() + "\n" + 
+                user.getGoalAverage() + "\n" + user.getGoalTotal();
+            }
 
-            paneButton.getChildren().add(btnClose);
-            paneButton.setPadding(new Insets(0, 0, 10, 165));
-
-            BorderPane paneMain = new BorderPane();
-            paneMain.setTop(panelPlayerAndGoals);
-            paneMain.setCenter(panelPlayerStats);
-            paneMain.setBottom(paneButton);
-
-            Scene scene = new Scene(paneMain, 400, 450);
-            stage.setScene(scene);
-            stage.setTitle("Player Stats");
-            stage.showAndWait();
+            display.setText(playersAndGoals + playerStats);
         }
     }
 
@@ -272,7 +231,7 @@ public class MainMenu {
                 String newName = Dialog.getTextInput("Update", "Enter a New Name", "Name: ");
                 updatePlayer(newName, playerIndex);
             }
-
+            updateDisplay();
         }
     }
 
@@ -303,6 +262,7 @@ public class MainMenu {
             if (playerIndex != -1) {
                 deletePlayer(playerIndex);
             }
+            updateDisplay();
         }
     }
 
@@ -317,23 +277,9 @@ public class MainMenu {
         
         if (user.playersNotEntered()) playersNotEnteredPrompt();
         else {
-            Alert prompt = new Alert(AlertType.CONFIRMATION);
-            prompt.setHeaderText("Delete All Players");
-            prompt.setContentText("Are you sure you want to delete all players?");
-            ButtonType btnOK = new ButtonType("OK");
-            ButtonType btnCancel = new ButtonType("Cancel");
-
-            prompt.getButtonTypes().setAll(btnOK, btnCancel);
-            Optional<ButtonType> result = prompt.showAndWait();
-        
-            if (result.get() == btnOK) {
+            if (Dialog.getConfirmation("Delete", "Delete All Players?", null))
                 user.clearPlayers();
-                Alert deletePrompt = new Alert(AlertType.INFORMATION);
-                deletePrompt.setHeaderText("Delete All Players");
-                deletePrompt.setContentText("All Players Deleted");
-                deletePrompt.showAndWait();
-            } else if (result.get() == btnCancel)
-                prompt.close();
+            updateDisplay();
         }
     }
 
