@@ -34,13 +34,18 @@ public class MainMenu {
         alertPrompt.showAndWait();
     }
 
+    public void playersNotEnteredPrompt() {
+        throwAlert("Update Players", "Players Not Entered");
+    }
 
     public void start() throws Exception {
 
         this.stage = new Stage();
         stage.setTitle("Main Menu");
 
-        VBox pane = new VBox();
+        HBox menuPane = new HBox();
+        // will contain menuPane as well as text box
+        VBox mainPane = new VBox();
 
         // Main menu bar
         Menu fileMenu = new Menu("File");
@@ -87,11 +92,17 @@ public class MainMenu {
 
         MenuBar menuBar = new MenuBar();
         menuBar.getMenus().addAll(fileMenu, playerMenu, goalMenu, preferenceMenu);
-        pane.getChildren().add(menuBar);
+        menuPane.getChildren().add(menuBar);
 
-        Scene scene = new Scene(pane, menuWidth, menuHeight);
+        // Setting TextArea
+        Text text = new Text();
+
+        mainPane.getChildren().addAll(menuPane, text);
+
+        Scene scene = new Scene(mainPane, menuWidth, menuHeight);
         stage.setScene(scene);
         stage.showAndWait();
+
     }
 
     public void saveAndExit() throws Exception {
@@ -257,41 +268,11 @@ public class MainMenu {
             user.sortByNamePreference();
 
             int playerIndex = Dialog.getChoice("Players", "Select Players", "", user.getPlayerNames());
-            String newName = Dialog.getTextInput("Update", "Enter a New Name", "Name: ");
-            updatePlayer(newName, playerIndex);
+            if (playerIndex != -1) {
+                String newName = Dialog.getTextInput("Update", "Enter a New Name", "Name: ");
+                updatePlayer(newName, playerIndex);
+            }
 
-
-        }
-    }
-
-    public void playersNotEnteredPrompt() {
-        throwAlert("Update Players", "Players Not Entered");
-    }
-
-    public void setPlayerName(ListView<String> playerListView, Stage parentStage) {
-        if (user.playersNotEntered()) playersNotEnteredPrompt();
-        else {
-
-            
-            /*
-            String selectedPlayer = playerListView.getSelectionModel().getSelectedItem();
-            selectedPlayer = selectedPlayer.substring(0, selectedPlayer.lastIndexOf(':'));
-            if (selectedPlayer != null) {
-                int playerIndex = user.getIndexFromName(selectedPlayer);
-
-                GenericTextBox updateTextBox = new GenericTextBox("Update Player", "Name:");
-                Stage updateStage = updateTextBox.getStage();
-                
-                updateTextBox.getTextField().setOnAction(e -> updatePlayer(
-                    updateTextBox.getTextField().getText(), playerIndex, 
-                    updateStage, parentStage));
-                updateTextBox.getBtnOK().setOnAction(e -> updatePlayer(
-                    updateTextBox.getTextField().getText(), playerIndex, 
-                    updateStage, parentStage));
-                updateTextBox.getBtnCancel().setOnAction(e -> updateStage.close());
-
-                updateStage.showAndWait();
-            } */
         }
     }
 
@@ -301,8 +282,10 @@ public class MainMenu {
             String alertContent = "Player Already Entered has " + user.getPlayer(playerIndex).getGoals() +
                 " " + user.goalOrGoals(user.getPlayer(playerIndex).getGoals());
             throwAlert("Update Players", alertContent);
+
         } else if (newName.isEmpty()) {
             throwAlert("Update Players", "Please Enter a Name");
+
         } else {
             user.getPlayer(playerIndex).setName(newName);
             user.getPlayer(playerIndex).setGoals(0);
@@ -312,42 +295,22 @@ public class MainMenu {
     public void deletePlayers() {
         if (user.playersNotEntered()) playersNotEnteredPrompt();
         else {
+
             user.sortByNamePreference();
 
-            GenericListView deleteView = new GenericListView("Select Player to Delete", user.getPlayerListView());
-            Stage deleteStage = deleteView.getStage();
-            deleteView.getSubmitButton().setOnAction(e -> deletePlayerName(
-                deleteView.getListView(), deleteStage));
-            deleteStage.showAndWait();
+            int playerIndex = Dialog.getChoice("Delete", "Select Player to Delete", "", user.getPlayerNames());
+
+            if (playerIndex != -1) {
+                deletePlayer(playerIndex);
+            }
         }
     }
 
-    public void deletePlayerName(ListView<String> playerListView, Stage parentStage) {
-        if (user.playersNotEntered()) playersNotEnteredPrompt();
-        else {
+    public void deletePlayer(int playerIndex) {
+        String playerName = user.getPlayer(playerIndex).getName();
 
-            String selectedPlayer = playerListView.getSelectionModel().getSelectedItem();
-
-            Alert prompt = new Alert(AlertType.CONFIRMATION);
-            prompt.setHeaderText("Delete Player");
-            prompt.setContentText("Are you sure you want to delete " + selectedPlayer + "?");
-            ButtonType btnOK = new ButtonType("OK");
-            ButtonType btnCancel = new ButtonType("Cancel");
-
-            prompt.getButtonTypes().setAll(btnOK, btnCancel);
-            Optional<ButtonType> result = prompt.showAndWait();
-
-            if (result.get() == btnOK) {
-                user.getPlayers().remove(user.getIndexFromName(selectedPlayer));
-                Alert deletePrompt = new Alert(AlertType.INFORMATION);
-                deletePrompt.setHeaderText("Delete Player");
-                deletePrompt.setContentText("Player Deleted");
-                deletePrompt.showAndWait();
-                parentStage.close();
-            } else if (result.get() == btnCancel) {
-                parentStage.close();
-            }
-        }
+        if (Dialog.getConfirmation("Delete", "Confirm", "Delete Player " + playerName + "?"))
+            user.getPlayers().remove(playerIndex);
     }
 
     public void deleteAllPlayers() {

@@ -26,6 +26,22 @@ public class Main extends Application {
         mainMenu.start();
     }
 
+    private void determineIfUserVip() throws Exception {
+        String password = "#ChelseaIsTheBest";
+        
+        String attemptedPassword = Dialog.getTextInput("VIP Access", "Enter VIP Password", "Password");
+        if (attemptedPassword != null) {
+            if (attemptedPassword.equals(password)) { 
+                user.setVip(true);
+                Dialog.showMessage("VIP", "Login Successful", null);
+            } else {
+                Dialog.showMessage("VIP", "Login Unsuccessful", null);
+                user.setVip(false);
+            }
+            launchMainMenu();
+        }
+    }
+
     @Override
     public void start(Stage primaryStage) throws Exception {
 
@@ -34,12 +50,12 @@ public class Main extends Application {
         // loads user file if exists
         if (DataFile.userFileExists(User.USER_FILE)) {
             user = DataFile.loadUserFile(User.USER_FILE);
+            launchMainMenu();
         // if this is the user's first time using the program
         // they get prompted as to whether they are VIPs
         } else {
-            user.determineIfUserVip(primaryStage);
+            determineIfUserVip();
         }
-
         launchMainMenu();
     }
 

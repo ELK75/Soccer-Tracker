@@ -19,16 +19,6 @@ public class User implements Serializable {
 
     public static final String USER_FILE = "userFile.ser";
 
-    // sets VIP status based upon whether the user
-    // enters the correct password
-    public void determineIfUserVip(Stage stage) {
-        String password = "#ChelseaIsTheBest";
-        
-        if (Dialog.getTextInput("VIP Access", "Enter VIP Password", "Password") ==
-            password) isVip = true;
-        else isVip = false;
-    }
-
     public String[][] getPreferences() {
         return preferences;
     }
@@ -52,6 +42,10 @@ public class User implements Serializable {
 
     public boolean getIsVip() {
         return isVip;
+    }
+
+    public void setVip(boolean status) {
+        this.isVip = status;
     }
 
     public ArrayList<Player> getPlayers() {
