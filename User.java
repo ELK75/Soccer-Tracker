@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.io.Serializable;
 import javafx.stage.*;
 import javafx.scene.control.*;
+import java.util.Optional;
+
 
 public class User implements Serializable {
 
@@ -21,9 +23,10 @@ public class User implements Serializable {
     // enters the correct password
     public void determineIfUserVip(Stage stage) {
         String password = "#ChelseaIsTheBest";
-        VipMenu vipMenu = new VipMenu(password);
-        vipMenu.start();
-        isVip = vipMenu.getIsVip();
+        
+        if (Dialog.getTextInput("VIP Access", "Enter VIP Password", "Password") ==
+            password) isVip = true;
+        else isVip = false;
     }
 
     public String[][] getPreferences() {
@@ -63,12 +66,20 @@ public class User implements Serializable {
         players = new ArrayList<Player>();
     }
 
-    public String[] getPlayerNames() {
-        String[] playerNames = new String[getNumberOfPlayers()];
-        for (int i = 0; i < playerNames.length; i++) {
-            playerNames[i] = players.get(i).getName();
+    public ArrayList<String> getPlayerNames() {
+        ArrayList<String> playerNames = new ArrayList<String>();
+        for (int i = 0; i < players.size(); i++) {
+            playerNames.add(players.get(i).getName());
         }
         return playerNames;
+    }
+
+    public ArrayList<String> getPlayerNamesAndGoals() {
+        ArrayList<String> playerNamesAndGoals = new ArrayList<String>();
+        for (int i = 0; i < getNumberOfPlayers(); i++) {
+            playerNamesAndGoals.add(getPlayerAndGoalsString(i));
+        }
+        return playerNamesAndGoals;
     }
 
     public int[] getPlayerGoals() {
@@ -115,7 +126,7 @@ public class User implements Serializable {
         else return 0;
     }
     public boolean playersNotEntered() {
-        return getPlayers().isEmpty();
+        return players.isEmpty();
     }
     
     // method modified from StackOverflow
@@ -153,7 +164,7 @@ public class User implements Serializable {
     public ListView<String> getPlayerListViewWithGoals() {
         ListView<String> playerListViewWithGoals = new ListView<String>();
         for (int i = 0; i < getNumberOfPlayers(); i++) {
-            String playerAndGoals = getPlayer(i).getName() + ": " + getPlayer(i).getGoals();
+            String playerAndGoals = getPlayerAndGoalsString(i);
             playerListViewWithGoals.getItems().add(playerAndGoals);
         }
         return playerListViewWithGoals;
@@ -254,8 +265,8 @@ public class User implements Serializable {
         return playerAndGoals;
     }
     
-    public void changePreference(int input) {
-        String current_preference = preferences[input-1][1];
+    public void changePreference(int index) {
+        String current_preference = preferences[index][1];
         String new_preference = "";
         if (current_preference.equals("Ascending") || current_preference.equals("Descending"))
             // switches from ascending to descending or descending to ascending
@@ -264,6 +275,6 @@ public class User implements Serializable {
             // switches from true to false and false to true
             new_preference = current_preference.equals("True") ? "False" : "True";
     
-        preferences[input-1][1] = new_preference;
+        preferences[index][1] = new_preference;
     }
 }

@@ -27,6 +27,14 @@ public class MainMenu {
         this.user = user;
     }
 
+    private void throwAlert(String title, String content) {
+        Alert alertPrompt = new Alert(AlertType.INFORMATION);
+        alertPrompt.setTitle(title);
+        alertPrompt.setContentText(content);
+        alertPrompt.showAndWait();
+    }
+
+
     public void start() throws Exception {
 
         this.stage = new Stage();
@@ -42,7 +50,6 @@ public class MainMenu {
 
         // File menu options
         MenuItem saveAndExit = new MenuItem("Save and Exit");
-        // TODO FIX
         saveAndExit.setOnAction(e -> {
             try {
                 saveAndExit();
@@ -63,6 +70,8 @@ public class MainMenu {
         deletePlayers.setOnAction(e -> deletePlayers());
         MenuItem deleteAllPlayers = new MenuItem("Delete All Players");
         deleteAllPlayers.setOnAction(e -> deleteAllPlayers());
+
+        
 
         playerMenu.getItems().addAll(
             newPlayers, viewPlayers, updatePlayers, deletePlayers, deleteAllPlayers
@@ -178,12 +187,14 @@ public class MainMenu {
     }
 
     public void viewPlayers() {
-        if (user.playersNotEntered()) {
-            playersNotEnteredPrompt();
-        } else {
+        if (user.playersNotEntered()) playersNotEnteredPrompt();
+        else {
             user.sortByNamePreference();
             user.sortByGoalPreferences();
+
             Stage stage = new Stage();
+
+            // printing player and goals
             VBox panelPlayerAndGoals = new VBox(5);
             for (int i = 0; i < user.getNumberOfPlayers(); i++) {
                 Label lblPlayerAndGoals = new Label(user.getPlayerAndGoalsString(i));
@@ -195,7 +206,7 @@ public class MainMenu {
 
 
             VBox panelPlayerStats = new VBox(5);
-
+            // if user preference is to show player stats
             if (user.getPreferences()[2][1].equals("True")) {
                 Label lblTopScorers = new Label(user.returnTopScorers());
                 lblTopScorers.setFont(new Font(15));
@@ -216,9 +227,12 @@ public class MainMenu {
             }
 
             HBox paneButton = new HBox();
+
+            // close button
             Button btnClose = new Button("Close");
             btnClose.setPadding(new Insets(15, 20, 15, 20));
             btnClose.setOnAction(e -> stage.close());
+
             paneButton.getChildren().add(btnClose);
             paneButton.setPadding(new Insets(0, 0, 10, 165));
 
@@ -238,28 +252,28 @@ public class MainMenu {
 
         if (user.playersNotEntered()) playersNotEnteredPrompt();
         else {
-            user.sortByNamePreference();
-            user.sortByGoalPreferences();
 
-            GenericListView updateView = new GenericListView("Select Player to Update", user.getPlayerListViewWithGoals());
-            Stage updateStage = updateView.getStage();
-            updateView.getSubmitButton().setOnAction(e -> setPlayerName(
-                updateView.getListView(), updateStage));
-            updateStage.showAndWait();
+            user.sortByGoalPreferences();
+            user.sortByNamePreference();
+
+            int playerIndex = Dialog.getChoice("Players", "Select Players", "", user.getPlayerNames());
+            String newName = Dialog.getTextInput("Update", "Enter a New Name", "Name: ");
+            updatePlayer(newName, playerIndex);
+
+
         }
     }
 
     public void playersNotEnteredPrompt() {
-        Alert prompt = new Alert(AlertType.INFORMATION);
-        prompt.setHeaderText("Update Players");
-        prompt.setContentText("Players Not Entered");
-        prompt.showAndWait();
+        throwAlert("Update Players", "Players Not Entered");
     }
 
     public void setPlayerName(ListView<String> playerListView, Stage parentStage) {
-        if (user.playersNotEntered()) {
-            playersNotEnteredPrompt();
-        } else {
+        if (user.playersNotEntered()) playersNotEnteredPrompt();
+        else {
+
+            
+            /*
             String selectedPlayer = playerListView.getSelectionModel().getSelectedItem();
             selectedPlayer = selectedPlayer.substring(0, selectedPlayer.lastIndexOf(':'));
             if (selectedPlayer != null) {
@@ -277,30 +291,21 @@ public class MainMenu {
                 updateTextBox.getBtnCancel().setOnAction(e -> updateStage.close());
 
                 updateStage.showAndWait();
-                
-            }
+            } */
         }
     }
 
-    public void updatePlayer(String newName, int playerIndex, Stage currentStage, Stage parentStage) {
-        Alert prompt = new Alert(AlertType.INFORMATION);
-        prompt.setHeaderText("Update Players");
+    public void updatePlayer(String newName, int playerIndex) {
+
         if (user.nameAlreadyInputted(newName)) {
-            prompt.setContentText("Player Already Entered has " + user.getPlayer(playerIndex).getGoals() +
-                " " + user.goalOrGoals(user.getPlayer(playerIndex).getGoals()));
-            prompt.showAndWait();
-            currentStage.close();
-            parentStage.close();
+            String alertContent = "Player Already Entered has " + user.getPlayer(playerIndex).getGoals() +
+                " " + user.goalOrGoals(user.getPlayer(playerIndex).getGoals());
+            throwAlert("Update Players", alertContent);
         } else if (newName.isEmpty()) {
-            prompt.setContentText("Please Enter A Name");
-            prompt.showAndWait();
+            throwAlert("Update Players", "Please Enter a Name");
         } else {
             user.getPlayer(playerIndex).setName(newName);
             user.getPlayer(playerIndex).setGoals(0);
-            prompt.setContentText("Player Updated");
-            prompt.showAndWait();
-            currentStage.close();
-            parentStage.close();
         }
     }
 
@@ -438,20 +443,13 @@ public class MainMenu {
     }
 
     public void changePreference(ListView<String> preferenceView, Stage goalStage) {
-        String selectedPreference = preferenceView.getSelectionModel().getSelectedItem();
-        int preferenceSelected = 1;
+        int selectedPreferenceIndex = preferenceView.getSelectionModel().getSelectedIndex();
+        user.changePreference(selectedPreferenceIndex);
 
-        if (selectedPreference.substring(0, 4).equals("Goal")) preferenceSelected = 1;
-        if (selectedPreference.substring(0, 4).equals("Name")) preferenceSelected = 2;
-        if (selectedPreference.substring(0, 4).equals("Show")) preferenceSelected = 3;
-
-        user.changePreference(preferenceSelected);
-
-        Alert preferencePrompt = new Alert(AlertType.INFORMATION);
-        preferencePrompt.setContentText("Changed to " + user.getPreferences()[preferenceSelected-1][1]);
-        preferencePrompt.showAndWait();
+        String changedPreference = "Changed " + user.getPreferences()[selectedPreferenceIndex][0] + 
+            " to " + user.getPreferences()[selectedPreferenceIndex][1];
+        throwAlert("Preference Update", changedPreference);
 
         goalStage.close();
-
     }
 }
