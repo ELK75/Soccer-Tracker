@@ -182,7 +182,8 @@ public class MainMenu {
             String playerName = textPlayers[i].getText();
             String playerGoals = textGoals[i].getText();
             if (playerName.isEmpty() || !User.isInteger(playerGoals) ||
-                user.nameAlreadyInputted(playerName)) continue;
+            user.nameAlreadyInputted(playerName) || Integer.parseInt(playerGoals) < 0) 
+                continue;
             else {
                 Player player = new Player(playerName);
                 if (playerGoals.isEmpty()) player.setGoals(0);
@@ -222,7 +223,6 @@ public class MainMenu {
 
         if (user.playersNotEntered()) playersNotEnteredPrompt();
         else {
-
             user.sortByGoalPreferences();
             user.sortByNamePreference();
 
@@ -287,78 +287,45 @@ public class MainMenu {
         if (user.playersNotEntered()) playersNotEnteredPrompt();
         else {
             user.sortByNamePreference();
+            user.sortByGoalPreferences();
 
-            GenericListView goalView = new GenericListView("Select Player to Add Goals", user.getPlayerListViewWithGoals());
-            Stage goalStage = goalView.getStage();
-            goalView.getSubmitButton().setOnAction(e -> addPlayerGoals(
-                goalView.getListView(), goalStage));
-            goalStage.showAndWait();
+            int chosenPlayer = Dialog.getChoice("Goals", "Select Player to Add Goals", null, 
+            user.getPlayerNamesAndGoals());
+            if (chosenPlayer != -1) {
+                addGoalsToPlayer(chosenPlayer);
+            }
+
+            updateDisplay();
         }
     }
 
-    public void addPlayerGoals(ListView<String> playerListView, Stage parentStage) {
+    public void addGoalsToPlayer(int chosenPlayer) {
+        String inputtedGoals = Dialog.getTextInput("Goals", "How Many Goals Would You Like To Add",
+        "Goals: ");
 
-        String selectedPlayer = playerListView.getSelectionModel().getSelectedItem();
-        selectedPlayer = selectedPlayer.substring(0, selectedPlayer.lastIndexOf(':'));
-        int playerIndex = user.getIndexFromName(selectedPlayer);
-        
-        GenericTextBox updateTextBox = new GenericTextBox("Update Player", "Goals:");
-        Stage updateStage = updateTextBox.getStage();
-
-        updateTextBox.getTextField().setOnAction(e -> addGoalsToPlayer(
-            updateTextBox.getTextField().getText(), playerIndex, 
-            updateStage, parentStage));
-        updateTextBox.getBtnOK().setOnAction(e -> addGoalsToPlayer(
-            updateTextBox.getTextField().getText(), playerIndex, 
-            updateStage, parentStage));
-        updateTextBox.getBtnCancel().setOnAction(e -> updateStage.close());
-
-        updateStage.showAndWait();
-    }
-
-    public void addGoalsToPlayer(String input, int playerIndex, Stage updateStage, Stage parentStage) {
-        if (User.isInteger(input) && Integer.parseInt(input) >= 0) {
-            user.getPlayer(playerIndex).addGoals(Integer.parseInt(input));
-
-            Alert addGoalsPrompt = new Alert(AlertType.INFORMATION);
-            addGoalsPrompt.setHeaderText("Update Goals");
-            addGoalsPrompt.setContentText("Added " + input + " " + user.goalOrGoals(Integer.parseInt(input)));
-            addGoalsPrompt.showAndWait();
-
-            updateStage.close();
-            parentStage.close();
-
+        if (User.isInteger(inputtedGoals) && Integer.parseInt(inputtedGoals) >= 0) {
+            user.getPlayer(chosenPlayer).addGoals(Integer.parseInt(inputtedGoals));
         } else {
-            Alert addGoalsPrompt = new Alert(AlertType.INFORMATION);
-            addGoalsPrompt.setHeaderText("Invalid Input");
-            addGoalsPrompt.setContentText("Please Enter a Postivie Number of Goals");
-            addGoalsPrompt.showAndWait();
+            Dialog.showMessage("Goals", "Error", "Negative or Non-Numeric Input");
         }
     }
 
     public void changePreferences() {
         if (!user.getIsVip()) {
-            Alert addGoalsPrompt = new Alert(AlertType.INFORMATION);
-            addGoalsPrompt.setHeaderText("Access Denied");
-            addGoalsPrompt.setContentText("Contact a Sassy Soccer representive for a VIP subscription");
-            addGoalsPrompt.showAndWait();
+            Dialog.showMessage("VIP Access", "Access Denied", 
+            "Contact a Sassy Soccer representive for a VIP subscription");
         } else {
-            GenericListView preferenceView = new GenericListView("Select Preference", user.getPreferenceListView());
-            Stage preferenceStage = preferenceView.getStage();
-            preferenceView.getSubmitButton().setOnAction(e -> changePreference(
-                preferenceView.getListView(), preferenceStage));
-            preferenceStage.showAndWait();
+            int chosenPreference = Dialog.getChoice("Preferences", "Change Preferences", null,
+            user.getPreferencesAndCurrentPreference());
+
+            if (chosenPreference != -1) {
+                user.changePreference(chosenPreference);
+                
+                String changedPreference = "Changed " + user.getPreferences()[chosenPreference][0] + 
+                " to " + user.getPreferences()[chosenPreference][1];
+                Dialog.showMessage("Preferences", "Preference Change", changedPreference);
+            }
         }
-    }
-
-    public void changePreference(ListView<String> preferenceView, Stage goalStage) {
-        int selectedPreferenceIndex = preferenceView.getSelectionModel().getSelectedIndex();
-        user.changePreference(selectedPreferenceIndex);
-
-        String changedPreference = "Changed " + user.getPreferences()[selectedPreferenceIndex][0] + 
-            " to " + user.getPreferences()[selectedPreferenceIndex][1];
-        throwAlert("Preference Update", changedPreference);
-
-        goalStage.close();
+        updateDisplay();
     }
 }

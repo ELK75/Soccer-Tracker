@@ -17,10 +17,25 @@ public class User implements Serializable {
                                     {"Names sort order", "Ascending"}, 
                                     {"Show goal summary", "True"}};
 
-    public static final String USER_FILE = "userFile.ser";
+    public static final String USER_FILE = "userFile.txt";
 
     public String[][] getPreferences() {
         return preferences;
+    }
+
+    public ArrayList<String> getPreferencesAndCurrentPreference() {
+        ArrayList<String> preferenceAndCurrentPreference = new ArrayList<String>();
+
+        for (int i = 0; i < preferences.length; i++) {
+            preferenceAndCurrentPreference.add(preferences[i][0] + ": " +
+            preferences[i][1]);
+
+        }
+        return preferenceAndCurrentPreference;
+    }
+
+    public ArrayList<Player> getPlayers() {
+        return players;
     }
 
     public void sortByNamesAsc() {
@@ -46,10 +61,6 @@ public class User implements Serializable {
 
     public void setVip(boolean status) {
         this.isVip = status;
-    }
-
-    public ArrayList<Player> getPlayers() {
-        return players;
     }
 
     public void setPlayers(ArrayList<Player> players) {
@@ -140,7 +151,7 @@ public class User implements Serializable {
     }
     
     public boolean nameAlreadyInputted(String name) {
-        for (Player player : getPlayers()) {
+        for (Player player : players) {
             if (player.getName().equals(name))
                 return true;
         }
