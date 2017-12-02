@@ -3,6 +3,11 @@ import java.util.Optional;
 import java.util.ArrayList;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
+import javafx.geometry.Insets;
+import javafx.scene.layout.*;
+import javafx.util.*;
 
 public class Dialog {
     
@@ -19,7 +24,7 @@ public class Dialog {
         Optional<String> choice = choiceDialog.showAndWait();
 
         if (choice.isPresent()) return options.indexOf(choice.get());
-        // returns -1 to let other functions know user aborted program
+        // returns -1 to let other functions know user aborted dialog
         else return -1;
     }
 

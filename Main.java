@@ -19,13 +19,15 @@ public class Main extends Application {
     }
 
     private void determineIfUserVip() throws Exception {
-        String password = "#ChelseaIsTheBest";
+        String password = user.getPassword();
         
         String attemptedPassword = Dialog.getTextInput("VIP Access", "Enter VIP Password", "Password");
         if (attemptedPassword != null) {
             if (attemptedPassword.equals(password)) { 
                 user.setVip(true);
                 Dialog.showMessage("VIP", "Login Successful", null);
+                ChangePasswordBox changePasswordBox = new ChangePasswordBox(user);
+                changePasswordBox.changePassword();
             } else {
                 Dialog.showMessage("VIP", "Login Unsuccessful", null);
                 user.setVip(false);

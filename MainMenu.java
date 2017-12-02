@@ -55,7 +55,7 @@ public class MainMenu {
         Menu fileMenu = new Menu("File");
         Menu playerMenu = new Menu("Players");
         Menu goalMenu = new Menu("Goals");
-        Menu preferenceMenu = new Menu("Preferences");
+        Menu vipMenu = new Menu("VIP");
 
         // Menu Items for Saving File
         MenuItem saveAndExit = new MenuItem("Save and Exit");
@@ -90,11 +90,13 @@ public class MainMenu {
         // Menu Items for Preferences
         MenuItem changePreferences = new MenuItem("Change Preferences");
         changePreferences.setOnAction(e -> changePreferences());
-        preferenceMenu.getItems().add(changePreferences);
+        MenuItem changePassword = new MenuItem("Change Password");
+        changePassword.setOnAction(e -> changePassword());
+        vipMenu.getItems().addAll(changePreferences, changePassword);
 
         // Main Menu Bar
         MenuBar menuBar = new MenuBar();
-        menuBar.getMenus().addAll(fileMenu, playerMenu, goalMenu, preferenceMenu);
+        menuBar.getMenus().addAll(fileMenu, playerMenu, goalMenu, vipMenu);
 
         // Main Pane
         mainPane.getChildren().addAll(menuBar, display);
@@ -140,6 +142,7 @@ public class MainMenu {
             HBox paneLabels = new HBox(lblPlayers, lblGoals);
             paneLabels.setPadding(new Insets (10, 10, 10, 10));
 
+            // creates text boxes for user input player and goals
             int maxPlayers = user.getNumberOfPlayersAllowed();
             TextField[] textPlayers = new TextField[maxPlayers];
             TextField[] textGoals = new TextField[maxPlayers];
@@ -327,5 +330,10 @@ public class MainMenu {
             }
         }
         updateDisplay();
+    }
+
+    public void changePassword() {
+        ChangePasswordBox changePasswordBox = new ChangePasswordBox(user);
+        changePasswordBox.changePassword();
     }
 }

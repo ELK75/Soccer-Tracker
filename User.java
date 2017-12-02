@@ -16,7 +16,7 @@ public class User implements Serializable {
     private String[][] preferences = {{"Goals sort order", "Descending"}, 
                                     {"Names sort order", "Ascending"}, 
                                     {"Show goal summary", "True"}};
-
+    private String password = "#ChelseaIsTheBest";                            
     public static final String USER_FILE = "userFile.txt";
 
     public String[][] getPreferences() {
@@ -32,6 +32,14 @@ public class User implements Serializable {
 
         }
         return preferenceAndCurrentPreference;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String newPassword) {
+        this.password = newPassword;
     }
 
     public ArrayList<Player> getPlayers() {
