@@ -34,6 +34,7 @@ public class SassyUser extends User {
         return userNames;
     }
 
+    // TO DO fix so it doesn't check just by name
     public boolean equals(SassyUser sassyUser) {
         return (name.equals(sassyUser.getName()));
     }

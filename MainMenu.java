@@ -402,7 +402,10 @@ public class MainMenu {
         if (!mainUser.getIsVip()) {
             userNotVipPrompt();
         } else {
-            setSelectedForAlreadyConnectedUsers();
+
+            // TODO fix so that when the user has checked the checkbox
+            // of users from a previous session it persists
+            //setSelectedForAlreadyConnectedUsers();
 
             CheckBoxSelection userSelection = new CheckBoxSelection(
                 sassyUserCheckBoxes, "Select User to Track");
