@@ -1,56 +1,72 @@
 
-import java.util.Scanner;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.io.Serializable;
-import javafx.stage.*;
-import javafx.scene.control.*;
-import java.util.Optional;
 
+public abstract class User implements Serializable {
 
-public class User implements Serializable {
+    protected ArrayList<Player> players = new ArrayList<Player>();
+    protected static String[][] preferences = {{"Goals sort order", "Descending"}, 
+                                                {"Names sort order", "Ascending"}, 
+                                                {"Show goal summary", "True"}};
 
-    private static Scanner scan = new Scanner(System.in);
-    private boolean isVip;
-    private ArrayList<Player> players = new ArrayList<Player>();
-    private String[][] preferences = {{"Goals sort order", "Descending"}, 
-                                    {"Names sort order", "Ascending"}, 
-                                    {"Show goal summary", "True"}};
-    private String password = "#ChelseaIsTheBest";                            
-    public static final String USER_FILE = "userFile.txt";
+    public int getNumberOfPlayers() {
+        return players.size();
+    }
+
+    public boolean playersNotEntered() {
+        return players.isEmpty();
+    }
+
+    public Player getPlayer(int index) {
+        return players.get(index);
+    }
 
     public String[][] getPreferences() {
         return preferences;
     }
 
-    public ArrayList<String> getPreferencesAndCurrentPreference() {
-        ArrayList<String> preferenceAndCurrentPreference = new ArrayList<String>();
+    public String getPlayerAndGoalsString(int index) {
+        String playerAndGoals = String.format(getPlayer(index).getName() + ", %,d " + 
+            goalOrGoals(getPlayer(index).getGoals()), getPlayer(index).getGoals());
+        return playerAndGoals;
+    }
 
-        for (int i = 0; i < preferences.length; i++) {
-            preferenceAndCurrentPreference.add(preferences[i][0] + ": " +
-            preferences[i][1]);
-
+    public ArrayList<String> getPlayerNamesAndGoals() {
+        ArrayList<String> playerNamesAndGoals = new ArrayList<String>();
+        for (int i = 0; i < getNumberOfPlayers(); i++) {
+            playerNamesAndGoals.add(getPlayerAndGoalsString(i));
         }
-        return preferenceAndCurrentPreference;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String newPassword) {
-        this.password = newPassword;
+        return playerNamesAndGoals;
     }
 
     public ArrayList<Player> getPlayers() {
         return players;
     }
 
-    public void sortByNamesAsc() {
+    public void setPlayers(ArrayList<Player> players) {
+        this.players = players;
+    }
+
+    public ArrayList<String> getPlayerNames() {
+        ArrayList<String> playerNames = new ArrayList<String>();
+        for (int i = 0; i < players.size(); i++) {
+            playerNames.add(players.get(i).getName());
+        }
+        return playerNames;
+    }
+
+    private int compare(int one, int two) {
+        if (one > two) return -1;
+        else if (one < two) return 1;
+        else return 0;
+    }
+
+    private void sortByNamesAsc() {
         Collections.sort(players, (a,b) -> a.getName().compareTo(b.getName()));
     }
 
-    public void sortByNamesDesc() {
+    private void sortByNamesDesc() {
         Collections.sort(players, (a,b) -> b.getName().compareTo(a.getName()));
     }
 
@@ -63,55 +79,15 @@ public class User implements Serializable {
         }
     }
 
-    public boolean getIsVip() {
-        return isVip;
-    }
-
-    public void setVip(boolean status) {
-        this.isVip = status;
-    }
-
-    public void setPlayers(ArrayList<Player> players) {
-        this.players = players;
-    }
-
-    public void clearPlayers() {
-        players = new ArrayList<Player>();
-    }
-
-    public ArrayList<String> getPlayerNames() {
-        ArrayList<String> playerNames = new ArrayList<String>();
-        for (int i = 0; i < players.size(); i++) {
-            playerNames.add(players.get(i).getName());
-        }
-        return playerNames;
-    }
-
-    public ArrayList<String> getPlayerNamesAndGoals() {
-        ArrayList<String> playerNamesAndGoals = new ArrayList<String>();
-        for (int i = 0; i < getNumberOfPlayers(); i++) {
-            playerNamesAndGoals.add(getPlayerAndGoalsString(i));
-        }
-        return playerNamesAndGoals;
-    }
-
-    public int[] getPlayerGoals() {
-        int[] playerGoals = new int[getNumberOfPlayers()];
-        for (int i = 0; i < playerGoals.length; i++) {
-            playerGoals[i] = players.get(i).getGoals();
-        }
-        return playerGoals;
-    }
-
-    public void sortByGoalsDesc() {
+    private void sortByGoalsDesc() {
         Collections.sort(players, (a,b) -> compare(a.getGoals(), b.getGoals()));
     }
 
-    public void sortByGoalsAsc() {
+    private void sortByGoalsAsc() {
         Collections.sort(players, (a,b) -> compare(b.getGoals(), a.getGoals()));
     }
 
-    public void sortByGoalPreferences() {
+    public void sortByGoalPreference() {
         if (players != null) {
             if (preferences[0][1].equals("Descending"))
                 sortByGoalsDesc();
@@ -120,91 +96,18 @@ public class User implements Serializable {
         }
     }
 
-    public Player getPlayer(int index) {
-        return players.get(index);
+    // sorts by names. breaks tie in names by goals
+    public void sortByGoalsBreakTieByName() {
+        sortByNamePreference();
+        sortByGoalPreference();
     }
-
-    public int getNumberOfPlayersAllowed() {
-        if (isVip) return 8;
-        else return 5;
-    }
-
-    public int getNumberOfPlayers() {
-        return players.size();
-    }
-
-    private int compare(int one, int two) {
-        if (one > two) return -1;
-        else if (one < two) return 1;
-        else return 0;
-    }
-    public boolean playersNotEntered() {
-        return players.isEmpty();
-    }
-    
-    // method modified from StackOverflow
-    public static boolean isInteger(String str) {
-        if (str == null || str.trim().isEmpty()) {
-            return false;
-        }
-        for (int i = 0; i < str.length(); i++) {
-            // testing if there is a negative sign. if there is it skips over
-            // it unless the input is JUST a negative sign
-            if (str.charAt(i) == '-' && i == 0 && str.length() > 1)
-                continue;
-            if (!Character.isDigit(str.charAt(i)))
-                return false;
-        }
-        return true;
-    }
-    
-    public boolean nameAlreadyInputted(String name) {
-        for (Player player : players) {
-            if (player.getName().equals(name))
-                return true;
-        }
-        return false;
-    }
-    
-    public ListView<String> getPlayerListView() {
-        ListView<String> playerListView = new ListView<String>();
-        for (int i = 0; i < getNumberOfPlayers(); i++) {
-            playerListView.getItems().add(getPlayer(i).getName());
-        }
-        return playerListView;
-    }
-
-    public ListView<String> getPlayerListViewWithGoals() {
-        ListView<String> playerListViewWithGoals = new ListView<String>();
-        for (int i = 0; i < getNumberOfPlayers(); i++) {
-            String playerAndGoals = getPlayerAndGoalsString(i);
-            playerListViewWithGoals.getItems().add(playerAndGoals);
-        }
-        return playerListViewWithGoals;
-    }
-
-    public ListView<String> getPreferenceListView() {
-        ListView<String> preferenceListView = new ListView<String>();
-        String preference = "";
-        for (int i = 0; i < 3; i++) {
-            preference += preferences[i][0] + " : " + preferences[i][1];
-            preferenceListView.getItems().add(preference);
-            preference = "";
-        }
-        return preferenceListView;
-    }
+    //
+    // METHODS RELATING TO PLAYER STATS
+    //
 
     // returns either singular or plural form of goal
     public String goalOrGoals(int count) {
         return count == 1 ? "goal" : "goals";
-    }
-    
-    public int getIndexFromName(String playerName) {
-        for (int i = 0; i < getNumberOfPlayers(); i++) {
-            if (getPlayer(i).getName().equals(playerName)) 
-                return i;
-        }
-        return -1;
     }
 
     private int[] goalArray() {
@@ -271,23 +174,7 @@ public class User implements Serializable {
         
         return listOfTopScorers;
     }
-    
-    public String getPlayerAndGoalsString(int index) {
-        String playerAndGoals = String.format(getPlayer(index).getName() + ", %,d " + 
-            goalOrGoals(getPlayer(index).getGoals()), getPlayer(index).getGoals());
-        return playerAndGoals;
-    }
-    
-    public void changePreference(int index) {
-        String current_preference = preferences[index][1];
-        String new_preference = "";
-        if (current_preference.equals("Ascending") || current_preference.equals("Descending"))
-            // switches from ascending to descending or descending to ascending
-            new_preference = current_preference.equals("Descending") ? "Ascending" : "Descending";
-        else if (current_preference.equals("True") || current_preference.equals("False"))
-            // switches from true to false and false to true
-            new_preference = current_preference.equals("True") ? "False" : "True";
-    
-        preferences[index][1] = new_preference;
-    }
+
+    public abstract String getName();
+
 }

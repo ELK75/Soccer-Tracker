@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class DataFile {
     
-    public static void writeUserFile(User inputUser, String filename) 
+    public static void writeUserFile(MainUser inputUser, String filename) 
     throws Exception {
         FileOutputStream out = new FileOutputStream(filename);
         ObjectOutputStream serializer = new ObjectOutputStream(out);
@@ -20,11 +20,11 @@ public class DataFile {
         return false;
     }
 
-    public static User loadUserFile(String filename)
+    public static MainUser loadUserFile(String filename)
     throws Exception {
         FileInputStream in = new FileInputStream(filename);
         ObjectInputStream deserializer = new ObjectInputStream(in);
-        User loadedUser = (User)deserializer.readObject();
+        MainUser loadedUser = (MainUser)deserializer.readObject();
         in.close();
         deserializer.close();
 

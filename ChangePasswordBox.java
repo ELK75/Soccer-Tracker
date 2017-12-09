@@ -13,12 +13,12 @@ import java.util.*;
 
 public class ChangePasswordBox {
 
-    private User user;
+    private MainUser mainUser;
     private int menuWidth = 400;
     private int menuHeight = 350;
 
-    public ChangePasswordBox(User user) {
-        this.user = user;
+    public ChangePasswordBox(MainUser mainUser) {
+        this.mainUser = mainUser;
     }
 
     public void changePassword() {
@@ -64,13 +64,12 @@ public class ChangePasswordBox {
     }
 
     public void changeToNewPassword(TextField[] inputtedPassword, Stage changePasswordStage) {
-        if (inputtedPassword[0].getText().equals(user.getPassword())) {
+        if (inputtedPassword[0].getText().equals(mainUser.getPassword())) {
 
             if (inputtedPassword[1].getText().equals(inputtedPassword[2].getText())) {
-                user.setPassword(inputtedPassword[1].getText());
+                mainUser.setPassword(inputtedPassword[1].getText());
                 Dialog.showMessage("Password", "Password Updated", null);
                 changePasswordStage.close();
-            
             } else {
                 Dialog.showMessage("Password", "Password Mismatch", null);
             }
